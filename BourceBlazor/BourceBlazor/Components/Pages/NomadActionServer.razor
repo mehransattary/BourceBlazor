@@ -1,0 +1,247 @@
+﻿
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+@attribute [Authorize]
+<PageTitle>
+    معاملات
+   @Title
+</PageTitle>
+
+<h3>
+    معاملات
+    @Title
+</h3>
+
+@if (NomadActions == null)
+{
+    <div class="spinner-border text-primary"></div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-9">
+        </div>
+
+        <div class="col-md-3">
+            @*  <a class="btn btn-primary" href="Nomads/@SearchTextNomad">
+        <Icon Name="IconName.ArrowLeftSquareFill" /> بازگشت به نماد ها
+        </a> *@
+        </div>
+    </div>
+
+
+    <div class="table-responsive mt-3">
+
+        <table class="table table-bordered table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+
+                    <th @onclick="()=>GetOrder_nTran(!Order_nTran)">ردیف</th>
+                    <th>زمان</th>
+                    <th>حجم</th>
+                    <th>قیمت</th>
+                    <th>لغو شده</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @if (IsLoad)
+                {
+                    <tr>
+                        <td colspan="6" class="text-center">
+                            <div class="spinner-border text-primary"></div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in NomadActions)
+                    {
+                        <tr>
+
+                            <td>@item.nTran</td>
+                            <td>@item.hEven.ToTime() </td>
+                            <td>@item.qTitTran.ToString("#,0") </td>
+                            <td>@item.pTran.ToString("#,0") </td>
+                            <td>@(item.canceled == 0 ? "خیر" : "لغو شده") </td>
+                        </tr>
+                    }
+                }
+
+            </tbody>
+        </table>
+
+
+    </div>
+
+    <Pagination ActivePageNumber="@CurrentPageNumber"
+                TotalPages="@TotalPages"
+                PageChanged="OnPageChangedAsync"
+                Alignment="Alignment.Center"
+                FirstLinkText="اولین"
+                LastLinkText="آخرین"
+                NextLinkText="بعدی"
+                PreviousLinkText="قبلی" />
+}
+
+@code {
+
+    [Parameter]
+    public string InsCode { get; set; }
+
+    [Parameter]
+    public string NomadName { get; set; }
+
+    [Parameter]
+    public int NomadDate { get; set; }
+
+    public IEnumerable<TradeHistory>? NomadActions { get; set; } = new List<TradeHistory>();
+
+    public IEnumerable<TradeHistory>? AllNomadActions { get; set; } = new List<TradeHistory>();
+
+    [SupplyParameterFromForm]
+    private ClosingPriceDailyViewModel ModelDate { get; set; } = new();
+
+    public bool IsLoad { get; set; } = false;
+
+    const string UrlAction = "https://cdn.tsetmc.com/api/Trade/GetTradeHistory/";
+
+    private OrderViewModel orderViewModel { get; set; }
+
+    public string Title { get; set; }
+
+    public bool Order_nTran { get; set; } = false;
+    public bool Order_hEven { get; set; } = false;
+    public bool Order_qTitTran { get; set; } = false;
+    public bool Order_pTran { get; set; } = false;
+    public bool Order_canceled { get; set; } = false;
+
+    //========Paging===========//
+
+    public int PageSize { get; set; } = 10;
+
+    public int Skip { get; set; } = 0;
+
+    public int TotalPages { get; set; }
+
+    public int CurrentPageNumber { get; set; } = 1;
+
+    //========Paging===========//
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(InsCode))
+        {
+            Title = $"{NomadName} {NomadDate.ToPersianDate()}";
+            await GetNomadAction();
+        }
+    }
+
+    private async Task OnPageChangedAsync(int newPageNumber)
+    {
+        await Task.Run(() =>
+        {
+            CurrentPageNumber = newPageNumber;
+        });
+
+        IEnumerable<TradeHistory>? nomadActions;
+
+        if (Order_nTran)
+        {
+            nomadActions = AllNomadActions.OrderByDescending(x => x.nTran)
+                                          .Skip((CurrentPageNumber - 1) * PageSize)
+                                          .Take(PageSize)
+                                          .ToList();
+        }
+        else
+        {
+            nomadActions = AllNomadActions.OrderBy(x => x.nTran)
+                                          .Skip((CurrentPageNumber - 1) * PageSize)
+                                          .Take(PageSize)
+                                          .ToList();
+        }
+
+        NomadActions = nomadActions;
+    }
+
+    private async Task GetNomadAction()
+    {
+        try
+        {
+            IsLoad = !IsLoad;
+
+            await Task.Delay(500);
+
+            var codeNomad = InsCode;
+
+            var nomadDate = NomadDate;
+
+            var request = new HttpRequestMessage(HttpMethod.Get, UrlAction + codeNomad + "/" + nomadDate + "/false");
+
+            var response = await GetResponse(request)!;
+
+            if (response.IsSuccessStatusCode)
+            {
+                using var responseStream = await response.Content.ReadAsStreamAsync();
+
+                Root Roots = await JsonSerializer.DeserializeAsync<Root>(responseStream);
+
+                AllNomadActions = Roots.tradeHistory.Select(item => new TradeHistory
+                    {
+                        nTran = item.nTran,
+                        hEven = item.hEven,
+                        qTitTran = item.qTitTran,
+                        pTran = item.pTran,
+                        canceled = item.canceled
+                    }).ToList();
+
+                NomadActions = AllNomadActions.OrderBy(x => x.nTran)
+                                              .Skip((CurrentPageNumber - 1) * PageSize)
+                                              .Take(PageSize)
+                                              .ToList();
+
+                TotalPages = AllNomadActions.Count();
+
+                IsLoad = !IsLoad;
+
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+    }
+
+    private async Task GetOrder_nTran(bool nTran)
+    {
+        Order_nTran = nTran;
+        StateHasChanged();
+        await OnPageChangedAsync(newPageNumber:0);
+    }
+
+    private async Task<HttpResponseMessage>? GetResponse(HttpRequestMessage request)
+    {
+        request.Headers.Add("Accept", "application/vnd.github.v3+json");
+
+        request.Headers.Add("User-Agent", "HttpClientFactory-Sample");
+
+        var client = ClientFactory.CreateClient();
+
+        var response = await client.SendAsync(request);
+
+        return response;
+    }
+
+    private class OrderViewModel
+    {
+        public bool nTran { get; set; } = false;
+        public bool hEven { get; set; } = false;
+        public bool qTitTran { get; set; } = false;
+        public bool pTran { get; set; } = false;
+        public bool canceled { get; set; } = false;
+    }
+
+}

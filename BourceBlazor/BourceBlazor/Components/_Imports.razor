@@ -1,0 +1,28 @@
+﻿@using System.Net.Http
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+@using BourceBlazor
+@using BourceBlazor.Client
+@using BourceBlazor.Components
+@using Domain.Entittes.Bource;
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using BourceBlazor.Components.Pages;
+@using AppShared.Helper;
+@using BlazorBootstrap;
+@using Microsoft.AspNetCore.Authorization
+
+@using AppShared.ViewModel.Nomad;
+@using AppShared.ViewModel.Nomad.Actions
+@using AppShared.ViewModel.Nomad.Instrument
+@using AppShared.ViewModel.Nomad.ClosingPriceDaily
+@inject IHttpClientFactory ClientFactory
+@inject NavigationManager NavigationManager
+@inject IConfiguration configuration
+

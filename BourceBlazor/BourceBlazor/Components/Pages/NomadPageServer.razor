@@ -1,0 +1,158 @@
+﻿
+@attribute [Authorize]
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+
+<PageTitle>نماد ها</PageTitle>
+
+<h3>نماد ها</h3>
+
+
+@if (instrumentSearchs == null)
+{
+    <div class="spinner-border text-primary"></div>
+}
+else
+{
+    <EditForm Model="ModelSearch" method="post" OnSubmit="GetSearch" FormName="SearchForm" Enhance>
+        <div class="row">
+            <div class="col-md-6">
+                <InputText @bind-Value="ModelSearch!.Search" class="form-control" />
+            </div>
+
+            <div class="col-md-6">
+                <button type="submit" class="btn btn-outline-primary">جستجو</button>
+            </div>
+        </div>
+    </EditForm>
+
+    <div class="table-responsive mt-3">
+        <table class="table table-bordered table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>عملیات</th>
+                    <th>ردیف</th>
+                    <th>نام</th>
+                    <th>بازار</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @if (IsLoad)
+                {
+                    <tr>
+                        <td colspan="4" class="text-center">
+                            <div class="spinner-border text-primary"></div>
+                        </td> 
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in instrumentSearchs)
+                    {
+                        var Name = @item.lVal18AFC +" - "+ @item.lVal30;
+                        <tr>
+                            <td>
+                                <a class="btn btn-outline-danger"  href="NomadDates/@item.insCode/@Name/@ModelSearch.Search">
+                                    <i class="bi  bi-calendar4-week"></i>   تاریخ ها                              
+                                </a>
+                            </td>
+                            <td>@item.Counter</td>
+                            <td>@Name</td>
+                            <td>@item.flowTitle </td>
+                        </tr>
+                    }
+                }
+               
+            </tbody>
+        </table>
+    </div>
+
+}
+
+
+@code {
+
+
+    [Parameter]
+    public string? SearchText { get; set; }
+
+    public IEnumerable<InstrumentSearch>? instrumentSearchs { get; set; } = new List<InstrumentSearch>();
+
+    public bool IsLoad { get; set; } = false;    
+
+    const string UrlSearch = "https://cdn.tsetmc.com/api/Instrument/GetInstrumentSearch/";
+
+    [SupplyParameterFromForm]
+    private InstrumentSearchViewModel ModelSearch { get; set; } = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(SearchText))
+        {
+            ModelSearch.Search = SearchText;
+            await GetSearch();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+    private async Task GetSearch()
+    {
+        try
+        {
+            IsLoad = !IsLoad;
+            await Task.Delay(500);
+
+            var search = ModelSearch.Search;
+
+            var request = new HttpRequestMessage(HttpMethod.Get, UrlSearch + search);
+
+            var response = await GetResponse(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                using var responseStream = await response.Content.ReadAsStreamAsync();
+
+                RootInstrument Roots = await JsonSerializer.DeserializeAsync<RootInstrument>(responseStream);
+
+                var result = Roots.instrumentSearch;
+
+                instrumentSearchs = result.Select((item, index) => new InstrumentSearch
+                    {
+                        Counter = ++index,
+                        lVal30 = item.lVal30,
+                        lVal18AFC = item.lVal18AFC,
+                        insCode = item.insCode,
+                        flowTitle = item.flowTitle
+                    });
+
+                IsLoad = !IsLoad;
+
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine(ex.Message);
+        }
+      
+
+    }  
+
+    private async Task<HttpResponseMessage>? GetResponse(HttpRequestMessage request)
+    {
+        request.Headers.Add("Accept", "application/vnd.github.v3+json");
+
+        request.Headers.Add("User-Agent", "HttpClientFactory-Sample");
+
+        var client = ClientFactory.CreateClient();
+
+        var response = await client.SendAsync(request);
+
+        return response;
+    }
+}

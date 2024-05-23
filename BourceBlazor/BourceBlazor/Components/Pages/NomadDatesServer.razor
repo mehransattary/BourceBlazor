@@ -1,0 +1,209 @@
+﻿@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+@attribute [Authorize]
+<PageTitle>
+    تاریخ های نماد
+    @NomadName
+</PageTitle>
+
+<h3>   
+    @NomadName
+</h3>
+
+@if (closingPriceDailies == null)
+{
+    <div class="spinner-border text-primary"></div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-9">
+        </div>
+
+        <div class="col-md-3">
+            <a class="btn btn-primary"  href="Nomads/@SearchTextNomad">
+                <Icon Name="IconName.ArrowLeftSquareFill" /> بازگشت به نماد ها
+            </a>
+        </div>
+    </div>
+
+
+    <div class="table-responsive mt-3">     
+
+        <table class="table table-bordered table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>عملیات</th>
+                    <th>ردیف</th>
+                    <th>تاریخ</th>
+                    <th>تعداد</th>
+                    <th>حجم</th>
+                    <th>ارزش</th>  
+                </tr>
+            </thead>
+            <tbody>
+
+                @if (IsLoad)
+                {
+                    <tr>
+                        <td colspan="6" class="text-center">
+                            <div class="spinner-border text-primary"></div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in closingPriceDailies)
+                    {
+                        <tr>
+                            <td>
+                                <a class="btn btn-outline-primary" href="NomadAction/@item.insCode/@NomadName/@item.dEven">
+                                    <Icon Name="IconName.EyeFill"></Icon>  معاملات
+                                </a>
+                            </td>
+                            <td>@item.Counter</td>
+                            <td>@item.dEven.ToPersianDate() </td>
+                            <td>@item.zTotTran </td>
+                            <td>@item.qTotTran5J </td>
+                            <td>@item.qTotCap </td>
+                        </tr>
+                    }
+                }
+
+            </tbody>
+        </table>
+
+     
+    </div>
+
+    <Pagination ActivePageNumber="@CurrentPageNumber"
+                TotalPages="@TotalPages"
+                PageChanged="OnPageChangedAsync"
+                Alignment="Alignment.Center"
+                FirstLinkText="اولین"
+                LastLinkText="آخرین"
+                NextLinkText="بعدی"
+                PreviousLinkText="قبلی" />
+}
+
+@code {
+
+    [Parameter]
+    public string InsCode { get; set; }
+
+    [Parameter]
+    public string NomadName { get; set; }
+
+    [Parameter]
+    public string SearchTextNomad { get; set; }
+
+    public IEnumerable<ClosingPriceDaily>? closingPriceDailies { get; set; } = new List<ClosingPriceDaily>();
+
+    public IEnumerable<ClosingPriceDaily>? AllclosingPriceDailies { get; set; } = new List<ClosingPriceDaily>();
+
+
+    [SupplyParameterFromForm]
+    private ClosingPriceDailyViewModel ModelDate { get; set; } = new();
+
+    public bool IsLoad { get; set; } = false;
+
+    const string UrlDate = "https://cdn.tsetmc.com/api/ClosingPrice/GetClosingPriceDailyList/";
+
+    //========Paging===========//
+
+    public int PageSize { get; set; } = 10;
+
+    public int Skip { get; set; } = 0;
+
+    public int TotalPages { get; set; }
+
+    public int CurrentPageNumber { get; set; } = 1; 
+
+    //========Paging===========//
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetDatesByNomad();
+    }
+
+    private async Task OnPageChangedAsync(int newPageNumber)
+    {
+        await Task.Run(() =>
+        {
+            CurrentPageNumber = newPageNumber;           
+        });
+
+        var result = AllclosingPriceDailies.OrderByDescending(x => x.dEven)
+                                           .Skip((CurrentPageNumber - 1) * PageSize)
+                                           .Take(PageSize)
+                                           .ToList();
+        closingPriceDailies = result;
+    }
+
+    private async Task GetDatesByNomad()
+    {
+        try
+        {
+            IsLoad = !IsLoad;
+
+            await Task.Delay(500);
+
+            var codeNomad = InsCode;
+
+            var request = new HttpRequestMessage(HttpMethod.Get, UrlDate + codeNomad + "/0");
+
+            var response = await GetResponse(request)!;
+
+            if (response.IsSuccessStatusCode)
+            {
+                using var responseStream = await response.Content.ReadAsStreamAsync();
+
+                RootClosingPriceDaily Roots = await JsonSerializer.DeserializeAsync<RootClosingPriceDaily>(responseStream);
+
+                AllclosingPriceDailies = Roots.closingPriceDaily.Select((item, index) => new ClosingPriceDaily
+                    {
+                        Counter = ++index,
+                        insCode = item.insCode,
+                        dEven = item.dEven,
+                        zTotTran = item.zTotTran,
+                        qTotTran5J = item.qTotTran5J,
+                        qTotCap = item.qTotCap
+                    }).ToList();
+
+
+                closingPriceDailies = AllclosingPriceDailies.OrderByDescending(x => x.dEven)
+                                                            .Skip((CurrentPageNumber - 1) * PageSize)
+                                                            .Take(PageSize)
+                                                            .ToList();
+
+                TotalPages = AllclosingPriceDailies.Count();
+
+                IsLoad = !IsLoad;
+
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine(ex.Message);
+        }
+    
+
+    }
+
+    private async Task<HttpResponseMessage>? GetResponse(HttpRequestMessage request)
+    {
+        request.Headers.Add("Accept", "application/vnd.github.v3+json");
+
+        request.Headers.Add("User-Agent", "HttpClientFactory-Sample");
+
+        var client = ClientFactory.CreateClient();
+
+        var response = await client.SendAsync(request);
+
+        return response;
+    }
+}

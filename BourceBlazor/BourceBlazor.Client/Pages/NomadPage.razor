@@ -1,0 +1,70 @@
+﻿@page "/Nomads"
+@rendermode InteractiveAuto
+@attribute [Authorize]
+
+<PageTitle>نماد ها</PageTitle>
+
+<h3>نماد ها</h3>
+
+<div class="row">
+    <div class="col-md-6 col-sm-8 col-8">
+        <input @bind="Search" class="form-control" />
+    </div>
+
+    <div class="col-md-6 col-sm-4 col-4">
+        <button class="btn btn-outline-primary" @onclick="GetSearch">جستجو</button>
+    </div>
+</div>
+
+@if (IsLoad)
+{
+    <div class="text-center loader">
+        <Spinner Type="SpinnerType.Dots" Class="me-3" Color="SpinnerColor.Primary" Size="SpinnerSize.Large" />
+    </div>
+}
+
+<Grid @ref="grid" 
+      TItem="InstrumentSearch"
+      Data="instrumentSearches"
+      Class="table table-hover table-bordered table-striped mt-3"
+      DataProvider="GetDataProvider"
+      AllowFiltering="true"
+      AllowPaging="true"
+      PageSize="5"
+      AllowSorting="true"
+      AllowSelection="true"
+      SelectionMode="GridSelectionMode.Multiple"
+      SelectedItemsChanged="OnSelectedItemsChanged"
+      Responsive="true">
+
+    <GridColumn TItem="InstrumentSearch" HeaderText="عملیات" PropertyName="Counter" Sortable="false" Filterable=false>
+
+        @{
+            var Name = @context.lVal18AFC + " - " + @context.lVal30;
+            var url = $"NomadDates/{context.insCode}/{Name}";
+        }
+        <Button class="btn btn-outline-danger" @onclick="()=>GoNomadDate(url)">
+            <i class="bi  bi-calendar4-week"></i>   
+        </Button>
+
+    </GridColumn>
+
+    <GridColumn TItem="InstrumentSearch" HeaderText="ردیف" PropertyName="Counter" SortKeySelector="item => item.Counter">
+        @context.Counter
+    </GridColumn>
+
+    <GridColumn TItem="InstrumentSearch" HeaderText=" نام" PropertyName="lVal18AFC" SortKeySelector="item => item.lVal18AFC">
+        @{
+            var Name = @context.lVal18AFC + " - " + @context.lVal30;
+         }
+        @Name
+    </GridColumn>
+
+    <GridColumn TItem="InstrumentSearch" HeaderText="بازار" PropertyName="flowTitle" SortKeySelector="item => item.flowTitle">
+        @context.flowTitle
+    </GridColumn>
+
+</Grid>
+
+
+
