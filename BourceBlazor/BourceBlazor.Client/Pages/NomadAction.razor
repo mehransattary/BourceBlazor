@@ -1,6 +1,6 @@
 ﻿@page "/NomadAction/{insCode}/{nomadDate:int}/{NomadName}"
 @page "/NomadAction"
-@rendermode InteractiveAuto
+@rendermode InteractiveWebAssembly
 @attribute [Authorize]
 
 <PageTitle>
@@ -13,24 +13,6 @@
     @Title
 </h3>
 
-<div class="row">
-
-    <div class="col-md-6 col-sm-4 col-4">
-
-        <AutoComplete @bind-Value="searchNomadName"
-                      TItem="InstrumentSearch"
-                      DataProvider="GetNomadDataProvider"
-                      PropertyName="lVal30"
-                      Placeholder="نماد ....."
-                      OnChanged="(InstrumentSearch instrumentSearch) => OnAutoCompleteChanged(instrumentSearch)"
-                      Style="direction:rtl"/>
-    </div>
-
-    <div class="col-md-6 col-sm-4 col-4">
-        <button class="btn btn-outline-primary" >جستجو</button>
-    </div>
-
-</div>
 
 @if (IsLoad)
 {
@@ -38,6 +20,43 @@
         <Spinner Type="SpinnerType.Dots" Class="me-3" Color="SpinnerColor.Primary" Size="SpinnerSize.Large" />
     </div>
 }
+<div class="row">
+
+    <div class="col-6">
+
+        <AutoComplete @bind-Value="searchNomadName"
+                      @ref="InstrumentSearchAuto"
+                      TItem="InstrumentSearch"
+                      DataProvider="GetNomadProvider"
+                      PropertyName="lVal30"
+                      Placeholder="نماد ....."
+                      OnChanged="(InstrumentSearch instrumentSearch) => OnNomadAutoCompleteChanged(instrumentSearch)" />
+
+    </div>
+
+    <div class="col-6">
+
+        @if (IsLoadSearchNomadDate)
+        {
+            <div class="text-center ">
+                <Spinner Type="SpinnerType.Dots" Class="me-3" Color="SpinnerColor.Primary" Size="SpinnerSize.Large" />
+            </div>
+        }
+        else
+        {
+            <AutoComplete @bind-Value="searchNomadDate"
+                          @ref="DateAuto"
+                          TItem="ClosingPriceDaily"
+                          DataProvider="GetNomadDataProvider"
+                          PropertyName="dEvenPersian"
+                          Placeholder="تاریخ ....."
+                          OnChanged="(ClosingPriceDaily closingPriceDaily) => OnNomadDateAutoCompleteChanged(closingPriceDaily)" />
+
+        }
+
+    </div>
+
+</div>
 
 <Grid @ref="grid"
       TItem="TradeHistory"

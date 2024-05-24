@@ -107,3 +107,8 @@ h1:focus {
     top: 50%;
     right: 55%;
 }
+
+.dropdown-item
+{
+    text-align:right;
+}

@@ -1,25 +1,29 @@
 ﻿@page "/Nomads"
-@rendermode InteractiveAuto
+@rendermode InteractiveWebAssembly
 @attribute [Authorize]
 
 <PageTitle>نماد ها</PageTitle>
 
 <h3>نماد ها</h3>
 
-<div class="row">
-    <div class="col-md-6 col-sm-8 col-8">
-        <input @bind="Search" class="form-control" />
-    </div>
 
-    <div class="col-md-6 col-sm-4 col-4">
-        <button class="btn btn-outline-primary" @onclick="GetSearch">جستجو</button>
-    </div>
-</div>
 
 @if (IsLoad)
 {
     <div class="text-center loader">
         <Spinner Type="SpinnerType.Dots" Class="me-3" Color="SpinnerColor.Primary" Size="SpinnerSize.Large" />
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-6">
+            <input @bind="Search" class="form-control" />
+        </div>
+
+        <div class="col-6">
+            <button class="btn btn-outline-primary" @onclick="GetSearch">جستجو</button>
+        </div>
     </div>
 }
 

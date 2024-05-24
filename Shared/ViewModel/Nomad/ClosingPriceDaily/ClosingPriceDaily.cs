@@ -9,6 +9,12 @@ public class ClosingPriceDaily
     /// تاریخ
     /// </summary>
     public int dEven { get; set; }
+
+    /// <summary>
+    /// تاریخ فارسی
+    /// </summary>
+    public string dEvenPersian { get; set; }
+
     /// <summary>
     /// تعداد
     /// </summary>
