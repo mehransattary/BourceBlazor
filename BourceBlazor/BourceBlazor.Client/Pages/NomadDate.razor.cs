@@ -101,5 +101,12 @@ public partial class NomadDate
         NavigationManager.NavigateTo(url);
     }
 
+    /// <summary>
+    /// برگشتن به صفحه نماد ها
+    /// </summary>
+    private void GoBackNomads()
+    {
+        NavigationManager.NavigateTo($"/Nomads/{NomadName}");
+    }
     #endregion
 }

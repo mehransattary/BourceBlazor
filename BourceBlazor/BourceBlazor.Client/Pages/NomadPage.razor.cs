@@ -1,5 +1,6 @@
 ﻿using AppShared.ViewModel.Nomad.Instrument;
 using BlazorBootstrap;
+using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;
 
 namespace BourceBlazor.Client.Pages;
@@ -7,6 +8,8 @@ namespace BourceBlazor.Client.Pages;
 public partial class NomadPage
 {
     #region <----------> Fields
+    [Parameter]
+    public string NomadName { get; set; }
 
     Grid<InstrumentSearch> grid = default!;
 
@@ -21,6 +24,13 @@ public partial class NomadPage
     #endregion
 
     #region <----------> Methods
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(NomadName))
+        {
+            Search = NomadName;
+        }
+    }
 
     /// <summary>
     /// لود اولیه برای گرید
@@ -28,7 +38,8 @@ public partial class NomadPage
     /// <param name="request"></param>
     /// <returns></returns>
     private async Task<GridDataProviderResult<InstrumentSearch>> GetDataProvider(GridDataProviderRequest<InstrumentSearch> request)
-    {
+    { 
+
         if (instrumentSearches is null)
         {
             instrumentSearches = await GetData(Search);
@@ -48,13 +59,12 @@ public partial class NomadPage
     {
         instrumentSearches = await GetData(Search);
 
-        if(instrumentSearches!=null && instrumentSearches.Any())
+        if (instrumentSearches != null && instrumentSearches.Any())
         {
             grid.Data = instrumentSearches!;
             await grid.RefreshDataAsync();
             StateHasChanged();
         }
-
     }
 
     /// <summary>
@@ -64,12 +74,20 @@ public partial class NomadPage
     /// <returns></returns>
     private async Task<IEnumerable<InstrumentSearch>> GetData(string search)
     {
-        search =(string.IsNullOrEmpty(search))? "خودرو" : search;
+        if (NomadName != null)
+        {
+            search = NomadName;
+        }
+
+        search = (string.IsNullOrEmpty(search)) ? "خودرو" : search;
+
         if (string.IsNullOrEmpty(search))
         {
             return new List<InstrumentSearch>();
         }
+
         var urlSearch = configuration["Urls:UrlSearch"];
+
         try
         {
             var response = await httpClient.GetFromJsonAsync<RootInstrument>(urlSearch + search);

@@ -77,7 +77,6 @@ public partial class NomadAction
 
             if (response != null && response.tradeHistory.Any())
             {
-
                 TradeHistories = response.tradeHistory.Select((item, index) => new TradeHistory
                 {
                     nTran = item.nTran,
@@ -109,7 +108,14 @@ public partial class NomadAction
         selectedEmployees = employees is not null && employees.Any() ? employees : new();
         return Task.CompletedTask;
     }
-    
+
+    /// <summary>
+    /// برگشتن به صفحه تاریخ نماد ها
+    /// </summary>
+    private void GoBackNomadDate()
+    {
+        NavigationManager.NavigateTo($"/NomadDates/{InsCode}/{NomadName}");
+    }
     #endregion
 }
 
@@ -171,8 +177,7 @@ public partial class NomadAction
     }
 
     private async Task OnNomadAutoCompleteChanged(InstrumentSearch instrumentSearch)
-    {
-    
+    {    
         InsCode = instrumentSearch?.insCode;
 
         if (closingPriceDailies is null && (!string.IsNullOrEmpty(InsCode)))

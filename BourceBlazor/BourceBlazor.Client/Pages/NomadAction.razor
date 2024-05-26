@@ -8,12 +8,19 @@
     @Title
 </PageTitle>
 
-<h3>
-    معاملات
-    @Title
-</h3>
 
 
+<div class="row">
+    <div class="col-6">
+        <h3>
+            معاملات
+            @Title
+        </h3>
+    </div>
+    <div class="col-6" style="text-align:end">
+        <Button Outline="true" Color="ButtonColor.Primary" @onclick=" ()=> GoBackNomadDate()"> بازگشت </Button>
+    </div>
+</div>
 @if (IsLoad)
 {
     <div class="text-center loader">

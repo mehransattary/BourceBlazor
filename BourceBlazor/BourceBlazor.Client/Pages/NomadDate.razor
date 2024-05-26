@@ -9,9 +9,17 @@
     @NomadName
 </PageTitle>
 
-<h3>
-    @NomadName
-</h3>
+<div class="row">
+    <div class="col-6">
+        <h3>
+            @NomadName
+        </h3>
+    </div>
+    <div class="col-6" style="text-align:end">
+        <Button Outline="true" Color="ButtonColor.Primary" @onclick=" ()=> GoBackNomads()"> بازگشت </Button>
+    </div>
+</div>
+
 @if (IsLoad)
 {
     <div class="text-center loader">
@@ -19,51 +27,51 @@
     </div>
 }
 
-    <Grid @ref="grid"
-          TItem="ClosingPriceDaily"
-          Data="closingPriceDailies"
-          Class="table table-hover table-bordered table-striped mt-3"
-          DataProvider="GetDataProvider"
-          AllowFiltering="true"
-          AllowPaging="true"
-          PageSize="5"
-          AllowSorting="true"
-          AllowSelection="true"
-          SelectionMode="GridSelectionMode.Multiple"
-          SelectedItemsChanged="OnSelectedItemsChanged"
-          Responsive="true">
+<Grid @ref="grid"
+      TItem="ClosingPriceDaily"
+      Data="closingPriceDailies"
+      Class="table table-hover table-bordered table-striped mt-3"
+      DataProvider="GetDataProvider"
+      AllowFiltering="true"
+      AllowPaging="true"
+      PageSize="5"
+      AllowSorting="true"
+      AllowSelection="true"
+      SelectionMode="GridSelectionMode.Multiple"
+      SelectedItemsChanged="OnSelectedItemsChanged"
+      Responsive="true">
 
-        <GridColumn TItem="ClosingPriceDaily" HeaderText="عملیات" PropertyName="Counter" Sortable="false" Filterable=false>
-            @{
+    <GridColumn TItem="ClosingPriceDaily" HeaderText="عملیات" PropertyName="Counter" Sortable="false" Filterable=false>
+        @{
             var url = $"NomadAction/{context.insCode}/{context.dEven}/{NomadName}";
-            }
-            <Button class="btn btn-outline-danger" @onclick="()=>GoNomadAction(url)">
-                <Icon Name="IconName.EyeFill"></Icon>
-            </Button>
+        }
+        <Button class="btn btn-outline-danger" @onclick="()=>GoNomadAction(url)">
+            <Icon Name="IconName.EyeFill"></Icon>
+        </Button>
 
-        </GridColumn>
+    </GridColumn>
 
-        <GridColumn TItem="ClosingPriceDaily" HeaderText="ردیف" PropertyName="Counter" SortKeySelector="item => item.Counter">
-            @context.Counter
-        </GridColumn>
+    <GridColumn TItem="ClosingPriceDaily" HeaderText="ردیف" PropertyName="Counter" SortKeySelector="item => item.Counter">
+        @context.Counter
+    </GridColumn>
 
-        <GridColumn TItem="ClosingPriceDaily" HeaderText=" تاریخ" PropertyName="dEven" SortKeySelector="item => item.dEven">
-            @context.dEven.ToPersianDate()
-        </GridColumn>
+    <GridColumn TItem="ClosingPriceDaily" HeaderText=" تاریخ" PropertyName="dEven" SortKeySelector="item => item.dEven">
+        @context.dEven.ToPersianDate()
+    </GridColumn>
 
-        <GridColumn TItem="ClosingPriceDaily" HeaderText="تعداد" PropertyName="zTotTran" SortKeySelector="item => item.zTotTran">
-            @context.zTotTran
-        </GridColumn>
+    <GridColumn TItem="ClosingPriceDaily" HeaderText="تعداد" PropertyName="zTotTran" SortKeySelector="item => item.zTotTran">
+        @context.zTotTran
+    </GridColumn>
 
-        <GridColumn TItem="ClosingPriceDaily" HeaderText="حجم" PropertyName="qTotTran5J" SortKeySelector="item => item.qTotTran5J">
-            @context.qTotTran5J
-        </GridColumn>
+    <GridColumn TItem="ClosingPriceDaily" HeaderText="حجم" PropertyName="qTotTran5J" SortKeySelector="item => item.qTotTran5J">
+        @context.qTotTran5J
+    </GridColumn>
 
-        <GridColumn TItem="ClosingPriceDaily" HeaderText="ارزش" PropertyName="qTotCap" SortKeySelector="item => item.qTotCap">
-            @context.qTotCap
-        </GridColumn>
+    <GridColumn TItem="ClosingPriceDaily" HeaderText="ارزش" PropertyName="qTotCap" SortKeySelector="item => item.qTotCap">
+        @context.qTotCap
+    </GridColumn>
 
-    </Grid>
+</Grid>
 
 
 

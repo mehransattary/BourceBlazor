@@ -1,4 +1,6 @@
 ﻿@page "/Nomads"
+@page "/Nomads/{NomadName}"
+
 @rendermode InteractiveWebAssembly
 @attribute [Authorize]
 
@@ -44,9 +46,10 @@ else
     <GridColumn TItem="InstrumentSearch" HeaderText="عملیات" PropertyName="Counter" Sortable="false" Filterable=false>
 
         @{
-            var Name = @context.lVal18AFC + " - " + @context.lVal30;
+            var Name = @context.lVal18AFC ;
             var url = $"NomadDates/{context.insCode}/{Name}";
         }
+
         <Button class="btn btn-outline-danger" @onclick="()=>GoNomadDate(url)">
             <i class="bi  bi-calendar4-week"></i>   
         </Button>
