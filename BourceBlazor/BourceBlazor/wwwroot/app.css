@@ -112,3 +112,7 @@ h1:focus {
 {
     text-align:right;
 }
+.bb-grid-pagination-text
+{
+    direction:ltr;
+}

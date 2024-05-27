@@ -36,12 +36,16 @@ else
       DataProvider="GetDataProvider"
       AllowFiltering="true"
       AllowPaging="true"
-      PageSize="5"
+      PageSize="10"
       AllowSorting="true"
       AllowSelection="true"
       SelectionMode="GridSelectionMode.Multiple"
       SelectedItemsChanged="OnSelectedItemsChanged"
-      Responsive="true">
+      Responsive="true"
+      PageSizeSelectorVisible
+      PaginationItemsTextFormat="{0} - {1} از {2} ردیف"
+      PageSizeSelectorItems="[10,20,30,100]"
+      ItemsPerPageText="تعداد نمایش">
 
     <GridColumn TItem="InstrumentSearch" HeaderText="عملیات" PropertyName="Counter" Sortable="false" Filterable=false>
 

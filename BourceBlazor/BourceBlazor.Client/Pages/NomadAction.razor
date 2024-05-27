@@ -65,6 +65,23 @@
 
 </div>
 
+<div class="row mb-2 mt-2">
+
+    <div class="col-4">
+        <div class="">
+            <Button Type="ButtonType.Button" Color="ButtonColor.Primary">
+                حجم کل :
+
+                <Badge Color="BadgeColor.Danger">
+                    @SumHajm
+                </Badge>
+            </Button>
+        </div>
+    </div>
+
+ </div>
+
+
 <Grid @ref="grid"
       TItem="TradeHistory"
       Data="TradeHistories"
@@ -72,12 +89,17 @@
       DataProvider="GetDataProvider"
       AllowFiltering="true"
       AllowPaging="true"
-      PageSize="5"
+      PageSize="10"
       AllowSorting="true"
       AllowSelection="true"
       SelectionMode="GridSelectionMode.Multiple"
       SelectedItemsChanged="OnSelectedItemsChanged"
-      Responsive="true">
+      Responsive="true"
+      PageSizeSelectorVisible
+      PaginationItemsTextFormat="{0} - {1} از {2} ردیف"
+      PageSizeSelectorItems="[10,20,30,100]"
+      ItemsPerPageText="تعداد نمایش">
+     
 
     <GridColumn TItem="TradeHistory" HeaderText="ردیف" PropertyName="nTran" SortKeySelector="item => item.nTran">
         @context.nTran
@@ -90,7 +112,7 @@
     <GridColumn TItem="TradeHistory" HeaderText="حجم" PropertyName="qTitTran" SortKeySelector="item => item.qTitTran">
         @context.qTitTran.ToString("#,0")
     </GridColumn>
-
+    
     <GridColumn TItem="TradeHistory" HeaderText="قیمت" PropertyName="pTran" SortKeySelector="item => item.pTran">
         @context.pTran.ToString("#,0")
     </GridColumn>
@@ -100,3 +122,6 @@
     </GridColumn>
 
 </Grid>
+
+
+
