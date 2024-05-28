@@ -8,28 +8,16 @@
     @Title
 </PageTitle>
 
-
-
 <div class="row">
-    <div class="col-6">
-        <h3>
+
+    <div class="col-3">
+        <h6>
             معاملات
             @Title
-        </h3>
+        </h6>
     </div>
-    <div class="col-6" style="text-align:end">
-        <Button Outline="true" Color="ButtonColor.Primary" @onclick=" ()=> GoBackNomadDate()"> بازگشت </Button>
-    </div>
-</div>
-@if (IsLoad)
-{
-    <div class="text-center loader">
-        <Spinner Type="SpinnerType.Dots" Class="me-3" Color="SpinnerColor.Primary" Size="SpinnerSize.Large" />
-    </div>
-}
-<div class="row">
 
-    <div class="col-6">
+    <div class="col-md-3 col-6">
 
         <AutoComplete @bind-Value="searchNomadName"
                       @ref="InstrumentSearchAuto"
@@ -41,7 +29,7 @@
 
     </div>
 
-    <div class="col-6">
+    <div class="col-md-2 col-6">
 
         @if (IsLoadSearchNomadDate)
         {
@@ -63,24 +51,33 @@
 
     </div>
 
-</div>
-
-<div class="row mb-2 mt-2">
-
-    <div class="col-4">
-        <div class="">
-            <Button Type="ButtonType.Button" Color="ButtonColor.Primary">
-                حجم کل :
-
-                <Badge Color="BadgeColor.Danger">
-                    @SumHajm
-                </Badge>
-            </Button>
-        </div>
+    <div class="col-md-3 col-6">
+        @if (!string.IsNullOrEmpty(SumHajm))
+        {
+            <Badge Color="BadgeColor.Primary">
+                حجم معاملات :     @SumHajm
+            </Badge>
+        }
+        @if (!string.IsNullOrEmpty(SumCount))
+        {
+            <Badge Color="BadgeColor.Success" >
+                تعداد معاملات :     @SumCount
+            </Badge>
+        }
     </div>
 
- </div>
+    <div class="col-md-1" style="text-align:end">
+        <Button Outline="true" Color="ButtonColor.Primary" @onclick=" ()=> GoBackNomadDate()"> <Icon Name="IconName.ArrowLeftSquare" />  </Button>
+    </div>
 
+</div>
+
+@if (IsLoad)
+{
+    <div class="text-center loader">
+        <Spinner Type="SpinnerType.Dots" Class="me-3" Color="SpinnerColor.Primary" Size="SpinnerSize.Large" />
+    </div>
+}
 
 <Grid @ref="grid"
       TItem="TradeHistory"
@@ -88,17 +85,18 @@
       Class="table table-hover table-bordered table-striped mt-3"
       DataProvider="GetDataProvider"
       AllowFiltering="true"
-      AllowPaging="true"
-      PageSize="10"
       AllowSorting="true"
       AllowSelection="true"
       SelectionMode="GridSelectionMode.Multiple"
       SelectedItemsChanged="OnSelectedItemsChanged"
       Responsive="true"
+      AllowPaging="true"
+      PageSize="10"
       PageSizeSelectorVisible
       PaginationItemsTextFormat="{0} - {1} از {2} ردیف"
       PageSizeSelectorItems="[10,20,30,100]"
-      ItemsPerPageText="تعداد نمایش">
+      ItemsPerPageText="تعداد نمایش" 
+      >
      
 
     <GridColumn TItem="TradeHistory" HeaderText="ردیف" PropertyName="nTran" SortKeySelector="item => item.nTran">
@@ -117,8 +115,8 @@
         @context.pTran.ToString("#,0")
     </GridColumn>
 
-    <GridColumn TItem="TradeHistory" HeaderText="لغو شده" PropertyName="canceled" SortKeySelector="item => item.canceled">
-        @(context.canceled == 0 ? "خیر" : "لغو شده")
+    <GridColumn TItem="TradeHistory" HeaderText=" وضعیت" PropertyName="canceled" SortKeySelector="item => item.canceled">
+        @(context.canceled == 0 ? "فعال" : "غیر فعال ")
     </GridColumn>
 
 </Grid>

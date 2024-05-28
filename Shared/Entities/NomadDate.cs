@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Domain.Entittes.Bource;
+namespace AppShared.Entities;
 
 public class NomadDate : BourceBase
 {

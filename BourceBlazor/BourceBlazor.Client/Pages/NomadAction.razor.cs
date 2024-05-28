@@ -33,9 +33,14 @@ public partial class NomadAction
     private HashSet<TradeHistory> selectedEmployees = new();
 
     /// <summary>
-    /// حجم کل
+    ///حجم معاملات
     /// </summary>
     public string SumHajm { get; set; }
+
+    /// <summary>
+    ///تعداد معاملات 
+    /// </summary>
+    public string SumCount { get; set; }
 
     #endregion
 
@@ -86,16 +91,23 @@ public partial class NomadAction
                                 .Where(x => x.canceled==0 )
                                 .Select((item, index) => new TradeHistory
                                 {
+                                    //Counter = ++index,
+                                    //ردیف
                                     nTran = item.nTran,
+                                    //زمان
                                     hEven = item.hEven,
                                     //حجم
-                                    qTitTran = item.qTitTran, 
+                                    qTitTran = item.qTitTran,
+                                    //قیمت
                                     pTran = item.pTran,
                                     canceled = item.canceled
                                 })
                                 .OrderBy(_ => _.nTran);
 
                 SumHajm = TradeHistories.Select(x=>x.qTitTran).Sum().ToString("#,0");
+
+                SumCount = TradeHistories.Select(x => x.nTran).Count().ToString("#,0");
+
                 return TradeHistories;
             }
 

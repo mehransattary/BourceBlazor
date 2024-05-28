@@ -1,4 +1,4 @@
-using Domain.Entittes.Bource;
+using AppShared.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

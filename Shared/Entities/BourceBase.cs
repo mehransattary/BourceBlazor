@@ -1,7 +1,6 @@
-﻿
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Entittes.Bource;
+namespace AppShared.Entities;
 
 public class BourceBase
 {

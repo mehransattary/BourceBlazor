@@ -8,6 +8,7 @@
 
     public class TradeHistory
     {
+        public int Counter { get; set; }
         public object insCode { get; set; }
         public int dEven { get; set; }
         public int nTran { get; set; }

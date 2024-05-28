@@ -1,4 +1,4 @@
-﻿namespace Domain.Entittes.Bource;
+﻿namespace AppShared.Entities;
 
 public class NomadAction : BourceBase
 {
