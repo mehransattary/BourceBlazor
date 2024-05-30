@@ -116,3 +116,8 @@ h1:focus {
 {
     direction:ltr;
 }
+
+.blazor-tag-input {
+    height: 35px;
+    padding:0px 8px;
+}

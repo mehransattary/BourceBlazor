@@ -11,11 +11,13 @@
     <ProjectReference Include="..\..\Shared\AppShared.csproj" />
     <ProjectReference Include="..\BourceBlazor.Client\BourceBlazor.Client.csproj" />
     <PackageReference Include="Blazor.Bootstrap" Version="2.2.1" />
+    <PackageReference Include="BlazorInputTags" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2" />
   </ItemGroup>
 
 </Project>

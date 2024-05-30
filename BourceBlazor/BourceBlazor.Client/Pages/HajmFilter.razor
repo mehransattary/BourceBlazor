@@ -1,0 +1,78 @@
+﻿@page "/HajmFilter"
+@using AppShared.Entities
+@rendermode InteractiveWebAssembly
+@attribute [Authorize]
+
+<PageTitle>
+    حجم های فیلتری
+</PageTitle>
+
+<div class="row">
+    <div class="col-6">
+        <h4>
+            حجم های فیلتری
+        </h4>
+    </div>
+
+    <div class="col-6" style="text-align:end">
+    </div>
+
+</div>
+
+@if (IsLoad)
+{
+    <div class="text-center loader">
+        <Spinner Type="SpinnerType.Dots" Class="me-3" Color="SpinnerColor.Primary" Size="SpinnerSize.Large" />
+    </div>
+}
+
+
+<div class="row">
+
+    <div class="col-md-4 col-6">
+        <AutoComplete @bind-Value="searchNomadName"
+                      @ref="InstrumentSearchAuto"
+                      TItem="InstrumentSearch"
+                      DataProvider="GetNomadProvider"
+                      PropertyName="lVal30"
+                      Placeholder="نماد ....." />
+    </div>
+
+    <div class="col-md-6 col-6">
+        <InputTags Value="Tags" Options="InputTagOptions" />
+    </div>
+
+    <div class="col-md-2 col-6">
+        <Button Type="ButtonType.Button" Color="ButtonColor.Success" @onclick="SaveHajm"> ذخیره  </Button>
+    </div>
+
+</div>
+
+
+<Grid @ref="gridHajm"
+      TItem="Hajm"
+      Data="hajms"
+      Class="table table-hover table-bordered table-striped mt-3"
+      DataProvider="GetDataProvider"
+      AllowFiltering="true"
+      AllowSorting="true"
+      AllowSelection="true"
+      SelectionMode="GridSelectionMode.Multiple"
+      Responsive="true"
+      AllowPaging="false">   
+
+    <GridColumn TItem="Hajm" HeaderText="ردیف" PropertyName="Id" SortKeySelector="item => item.Id">
+        @context.Counter
+    </GridColumn>
+
+    <GridColumn TItem="Hajm" HeaderText=" نماد" PropertyName="Name" SortKeySelector="item => item.Name">
+    @context.Name
+    </GridColumn>
+
+    <GridColumn TItem="Hajm" HeaderText="حجم" PropertyName="HajmName" SortKeySelector="item => item.HajmName">
+        @context.HajmName
+
+    </GridColumn>
+
+</Grid>
+
