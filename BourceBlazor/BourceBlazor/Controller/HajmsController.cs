@@ -42,6 +42,20 @@ namespace BourceBlazor.Controller
             return hajm;
         }
 
+        // GET: api/Hajms/5
+        [HttpGet("/GetHajmByCode/{code}")]
+        public async Task<ActionResult<IEnumerable<Hajm>>> GetHajmByCode(string code)
+        {
+            var hajms = await _context.Hajm.Where(x => x.Code == code).ToListAsync();
+
+            if (!hajms.Any())
+            {
+                return NotFound();
+            }
+
+            return hajms;
+        }
+
         // PUT: api/Hajms/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]

@@ -1,4 +1,5 @@
-﻿using AppShared.Helper;
+﻿using AppShared.Entities;
+using AppShared.Helper;
 using AppShared.ViewModel.Nomad.Actions;
 using AppShared.ViewModel.Nomad.ClosingPriceDaily;
 using AppShared.ViewModel.Nomad.Instrument;
@@ -30,6 +31,8 @@ public partial class NomadAction
 
     private IEnumerable<TradeHistory> TradeHistories = default!;
 
+    private List<Hajm> Hajms = new List<Hajm>();
+
     private HashSet<TradeHistory> selectedEmployees = new();
 
     /// <summary>
@@ -51,7 +54,10 @@ public partial class NomadAction
 
         if (!string.IsNullOrEmpty(InsCode))
         {
-            Title = $"{NomadName}  {NomadDate.ToPersianDate()} ";          
+            Title = $"{NomadName}  {NomadDate.ToPersianDate()} ";
+            searchNomadName = NomadName;
+            searchNomadDate = NomadDate.ToPersianDate();
+
         }
     }
 
@@ -64,6 +70,7 @@ public partial class NomadAction
     {
         if (TradeHistories is null)
         {
+            await GetFillHajms();
             TradeHistories = await GetData();
             IsLoad = false;
         }
@@ -87,8 +94,10 @@ public partial class NomadAction
 
             if (response != null && response.tradeHistory.Any())
             {
+                var hajmsCode = Hajms.Select(x => x.HajmValue);
+
                 TradeHistories = response.tradeHistory
-                                .Where(x => x.canceled==0 )
+                                .Where(x => x.canceled == 0 && !hajmsCode.Contains(x.qTitTran))
                                 .Select((item, index) => new TradeHistory
                                 {
                                     //Counter = ++index,
@@ -152,6 +161,9 @@ public partial class NomadAction
     public string searchNomadName { get; set; }
     private async Task<AutoCompleteDataProviderResult<InstrumentSearch>> GetNomadProvider(AutoCompleteDataProviderRequest<InstrumentSearch> request)
     {
+        IsLoadSearchNomadDate = true;
+        StateHasChanged();
+        Hajms.Clear();
         var value = InstrumentSearchAuto.Value;
         instrumentSearches = await GetNomadData(value);
         return request.ApplyTo(instrumentSearches);
@@ -204,13 +216,20 @@ public partial class NomadAction
 
         if (closingPriceDailies is null && (!string.IsNullOrEmpty(InsCode)))
         {
-            IsLoadSearchNomadDate = true;
-            StateHasChanged();
+            await GetFillHajms();
 
-            closingPriceDailies = await GetNomadDateData();
+             closingPriceDailies = await GetNomadDateData();
 
             IsLoadSearchNomadDate = false;
             StateHasChanged();
+        }
+    }
+
+    private async Task GetFillHajms()
+    {
+        if(!string.IsNullOrEmpty(InsCode))
+        {
+            Hajms = await httpClient.GetFromJsonAsync<List<Hajm>>($"/GetHajmByCode/{InsCode}");
         }
     }
 }
@@ -229,7 +248,8 @@ public partial class NomadAction
     public bool IsLoadSearchNomadDate { get; set; } = false;
 
     private async Task<AutoCompleteDataProviderResult<ClosingPriceDaily>> GetNomadDataProvider(AutoCompleteDataProviderRequest<ClosingPriceDaily> request)
-    {   
+    {
+
         if (closingPriceDailies is null && (!string.IsNullOrEmpty(InsCode)))
         {
             closingPriceDailies = await GetNomadDateData();
@@ -254,13 +274,14 @@ public partial class NomadAction
 
                 if (response != null && response.closingPriceDaily.Any())
                 {
-                    closingPriceDailies = response.closingPriceDaily.Select((item, index) => new ClosingPriceDaily
-                    {
-                        Counter = ++index,
-                        insCode = item.insCode,
-                        dEvenPersian = item.dEven.ToPersianDate(),    
-                        dEven =item.dEven
-                    });
+                    closingPriceDailies = response.closingPriceDaily                                        
+                                            .Select((item, index) => new ClosingPriceDaily
+                                            {
+                                                Counter = ++index ,
+                                                insCode = item.insCode ,
+                                                dEvenPersian = item.dEven.ToPersianDate() ,    
+                                                dEven =item.dEven
+                                            });
 
                     return closingPriceDailies;
                 }

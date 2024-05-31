@@ -10,14 +10,9 @@
 
 <div class="row">
 
-    <div class="col-3">
-        <h6>
-            معاملات
-            @Title
-        </h6>
-    </div>
 
-    <div class="col-md-3 col-6">
+
+    <div class="col-md-5 col-5">
 
         <AutoComplete @bind-Value="searchNomadName"
                       @ref="InstrumentSearchAuto"
@@ -29,7 +24,7 @@
 
     </div>
 
-    <div class="col-md-2 col-6">
+    <div class="col-md-5 col-5">
 
         @if (IsLoadSearchNomadDate)
         {
@@ -51,26 +46,45 @@
 
     </div>
 
-    <div class="col-md-3 col-6">
-        @if (!string.IsNullOrEmpty(SumHajm))
-        {
-            <Badge Color="BadgeColor.Primary">
-                حجم معاملات :     @SumHajm
-            </Badge>
-        }
-        @if (!string.IsNullOrEmpty(SumCount))
-        {
-            <Badge Color="BadgeColor.Success" >
-                تعداد معاملات :     @SumCount
-            </Badge>
-        }
-    </div>
 
-    <div class="col-md-1" style="text-align:end">
+
+    <div class="col-md-2" style="text-align:end">
         <Button Outline="true" Color="ButtonColor.Primary" @onclick=" ()=> GoBackNomadDate()"> <Icon Name="IconName.ArrowLeftSquare" />  </Button>
     </div>
 
 </div>
+
+@if (Hajms.Any())
+{
+    <div class="row mt-2 ">
+        <div class="col-md-6 col-12">
+            <label>
+                حجم های فیلتر شده :
+            </label>
+            @foreach (var item in Hajms)
+            {
+                <Badge Color="BadgeColor.Danger" Class="me-2">
+                    <Icon Name="IconName.Ticket"></Icon>
+                    @item.HajmValue.ToString("#,0")
+                </Badge>
+            }
+        </div>
+        <div class="col-md-6 col-12" style="text-align:end;">
+            @if (!string.IsNullOrEmpty(SumHajm))
+            {
+                <Badge Color="BadgeColor.Primary" Class="p-2" IndicatorType="BadgeIndicatorType.RoundedPill">
+                    حجم معاملات :     @SumHajm
+                </Badge>
+            }
+            @if (!string.IsNullOrEmpty(SumCount))
+            {
+                <Badge Color="BadgeColor.Success" Class="me-2 p-2" IndicatorType="BadgeIndicatorType.RoundedPill">
+                    تعداد معاملات :     @SumCount
+                </Badge>
+            }
+        </div>
+    </div>
+}
 
 @if (IsLoad)
 {

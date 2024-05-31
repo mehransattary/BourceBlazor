@@ -52,7 +52,7 @@ public partial class HajmFilter
             {
                 Counter = ++index ,
                 Name = item.Name,
-                HajmName =item.HajmName,
+                HajmValue =item.HajmValue,
                 Id = item.Id
             });
 
@@ -91,6 +91,9 @@ public partial class HajmFilter
     private AutoComplete<InstrumentSearch> InstrumentSearchAuto = default!;
 
     private string searchNomadName { get; set; }
+
+    private string searchNomadInsCode { get; set; }
+
 
     //==========Methods=========================//
     private async Task<AutoCompleteDataProviderResult<InstrumentSearch>> GetNomadProvider(AutoCompleteDataProviderRequest<InstrumentSearch> request)
@@ -149,8 +152,8 @@ public partial class HajmFilter
                 var hajmModel = new Hajm()
                 {                
                     Name = searchNomadName,
-                    Code = "",
-                    HajmName = tag
+                    Code = searchNomadInsCode,
+                    HajmValue =Convert.ToInt32(tag)
                 };
 
                 hajmModels.Add(hajmModel);
@@ -174,5 +177,10 @@ public partial class HajmFilter
         Tags.Clear();
         StateHasChanged();
     }
- 
+
+    private void OnAutoCompleteChanged(InstrumentSearch instrumentSearch)
+    {
+        searchNomadInsCode = instrumentSearch.insCode;
+    }
+
 }

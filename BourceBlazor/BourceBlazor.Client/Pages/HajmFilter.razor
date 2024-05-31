@@ -35,6 +35,7 @@
                       TItem="InstrumentSearch"
                       DataProvider="GetNomadProvider"
                       PropertyName="lVal30"
+                      OnChanged="(InstrumentSearch instrumentSearch) => OnAutoCompleteChanged(instrumentSearch)"
                       Placeholder="نماد ....." />
     </div>
 
@@ -74,8 +75,8 @@
     @context.Name
     </GridColumn>
 
-    <GridColumn TItem="Hajm" HeaderText="حجم" PropertyName="HajmName" SortKeySelector="item => item.HajmName">
-        @context.HajmName
+    <GridColumn TItem="Hajm" HeaderText="حجم" PropertyName="HajmName" SortKeySelector="item => item.HajmValue">
+        @context.HajmValue.ToString("#,0")
 
     </GridColumn>
 
