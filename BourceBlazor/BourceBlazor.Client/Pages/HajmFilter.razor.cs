@@ -20,18 +20,16 @@ public partial class HajmFilter
 
     private IEnumerable<Hajm> hajms = default!;
 
-    private Hajm hajm { get; set; } = new();
-
+    //==========Methods=========================//
     protected override void OnInitialized()
     {
         InputTagOptions = new InputTagOptions()
         {
             DisplayLabel = false,
-            InputPlaceholder = "حجم را وارد نمائید و اینتر بزنید...",     
+            InputPlaceholder = "حجم را وارد نمائید و اینتر بزنید...",
         };
     }
 
-    //==========Methods=========================//
     private async Task<GridDataProviderResult<Hajm>> GetDataProvider(GridDataProviderRequest<Hajm> request)
     {
         if (hajms is null)
@@ -56,7 +54,6 @@ public partial class HajmFilter
                 Name = item.Name,
                 HajmName =item.HajmName,
                 Id = item.Id
-
             });
 
             gridHajm.Data = result;
@@ -70,6 +67,13 @@ public partial class HajmFilter
             return new List<Hajm>();
         }
     }
+
+    private async Task DeleteHajm(Guid id)
+    {
+        await httpClient.DeleteAsync($"api/Hajms/{id}");
+        await ReloadHajm();
+    }
+  
 }
 
 /// <summary>
@@ -79,12 +83,6 @@ public partial class HajmFilter
 { 
     //=========Fields==========================//
     private List<string> Tags { get; set; } = new();
-
-    private string searchName { get; set; }
-
-    private AutoComplete<Hajm> DateAuto = default!;
-
-    private string Search { get; set; } = string.Empty;
 
     private InputTagOptions InputTagOptions { get; set; } = new();
 
@@ -149,8 +147,7 @@ public partial class HajmFilter
             foreach (var tag in Tags)
             {
                 var hajmModel = new Hajm()
-                {
-                
+                {                
                     Name = searchNomadName,
                     Code = "",
                     HajmName = tag
@@ -164,12 +161,12 @@ public partial class HajmFilter
                 await httpClient.PostAsJsonAsync<Hajm>("/api/Hajms", _hajm);
             }
 
-           await ReloadHajm(hajmModels);
+           await ReloadHajm();
         }
 
     }
 
-    private async Task ReloadHajm(List<Hajm> models)
+    private async Task ReloadHajm()
     {
         hajms = await GetData();
         await gridHajm.RefreshDataAsync();
@@ -177,4 +174,5 @@ public partial class HajmFilter
         Tags.Clear();
         StateHasChanged();
     }
+ 
 }

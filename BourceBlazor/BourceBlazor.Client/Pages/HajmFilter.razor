@@ -41,11 +41,9 @@
     <div class="col-md-6 col-6">
         <InputTags Value="Tags" Options="InputTagOptions" />
     </div>
-
     <div class="col-md-2 col-6">
         <Button Type="ButtonType.Button" Color="ButtonColor.Success" @onclick="SaveHajm"> ذخیره  </Button>
     </div>
-
 </div>
 
 
@@ -55,13 +53,20 @@
       Class="table table-hover table-bordered table-striped mt-3"
       DataProvider="GetDataProvider"
       AllowFiltering="true"
-      AllowSorting="true"
-      AllowSelection="true"
-      SelectionMode="GridSelectionMode.Multiple"
+      AllowSorting="true"     
       Responsive="true"
-      AllowPaging="false">   
+      AllowPaging="false"
+      EmptyText="اطلاعاتی وجود ندارد">
 
-    <GridColumn TItem="Hajm" HeaderText="ردیف" PropertyName="Id" SortKeySelector="item => item.Id">
+    <GridColumn TItem="Hajm" HeaderText="عملیات" PropertyName="Id" Sortable="false" Filterable=false Class="actions">
+       
+        <Button class="btn btn-outline-danger" @onclick="()=>DeleteHajm(context.Id)">
+            <Icon Name="IconName.Trash"></Icon>
+        </Button>
+
+    </GridColumn>
+
+    <GridColumn TItem="Hajm" HeaderText="ردیف" PropertyName="Counter" SortKeySelector="item => item.Counter">
         @context.Counter
     </GridColumn>
 
