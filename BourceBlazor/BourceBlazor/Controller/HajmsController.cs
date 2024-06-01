@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AppShared.Entities;
 using BourceBlazor.Data;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Newtonsoft.Json.Linq;
 
 namespace BourceBlazor.Controller
 {
@@ -15,17 +18,29 @@ namespace BourceBlazor.Controller
     public class HajmsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMemoryCache _memoryCache;
 
-        public HajmsController(ApplicationDbContext context)
+        public HajmsController(ApplicationDbContext context, IMemoryCache memoryCache)
         {
             _context = context;
+            _memoryCache = memoryCache;
         }
 
         // GET: api/Hajms
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Hajm>>> GetHajm()
         {
-            return await _context.Hajm.OrderByDescending(x=>x.Counter).ToListAsync();
+            string cacheKey = "cachedHajms";
+            var cachedData = _memoryCache.Get<List<Hajm>>(cacheKey);
+
+            if (cachedData == null)
+            {
+                 cachedData = await _context.Hajm.OrderByDescending(x => x.Counter).ToListAsync();
+                _memoryCache.Set(cacheKey, cachedData);
+            }
+
+            return cachedData;
+
         }
 
         // GET: api/Hajms/5
@@ -50,7 +65,7 @@ namespace BourceBlazor.Controller
 
             if (!hajms.Any())
             {
-                return NotFound();
+                return new List<Hajm>();
             }
 
             return hajms;
@@ -71,6 +86,7 @@ namespace BourceBlazor.Controller
             try
             {
                 await _context.SaveChangesAsync();
+                _memoryCache.Remove("cachedHajms");
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -96,6 +112,7 @@ namespace BourceBlazor.Controller
             hajm.Counter = lastHajmCounter+1;
             await _context.Hajm.AddAsync(hajm);
             await _context.SaveChangesAsync();
+            _memoryCache.Remove("cachedHajms");
 
             return CreatedAtAction("GetHajm", new { id = hajm.Id }, hajm);
         }
@@ -112,6 +129,7 @@ namespace BourceBlazor.Controller
 
             _context.Hajm.Remove(hajm);
             await _context.SaveChangesAsync();
+            _memoryCache.Remove("cachedHajms");
 
             return NoContent();
         }

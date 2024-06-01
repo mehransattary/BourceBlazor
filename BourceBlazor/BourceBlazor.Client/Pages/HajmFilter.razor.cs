@@ -1,7 +1,9 @@
 ﻿using AppShared.Entities;
 using AppShared.ViewModel.Nomad.Instrument;
 using BlazorBootstrap;
+using Blazored.LocalStorage;
 using BlazorInputTags;
+using Microsoft.AspNetCore.Components;
 using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Net.Http.Json;
@@ -14,6 +16,7 @@ namespace BourceBlazor.Client.Pages;
 public partial class HajmFilter
 {
     //=========Fields==========================//
+
     Grid<Hajm> gridHajm = default!;
 
     private bool IsLoad { get; set; } = true;
@@ -46,9 +49,15 @@ public partial class HajmFilter
     {
         try
         {
-           var query =await  httpClient.GetFromJsonAsync<IEnumerable<Hajm>>("/api/Hajms");
+            hajms = await localStorage.GetItemAsync<IEnumerable<Hajm>>("cachedHajms");
 
-            var result = query.Select( (item,index) => new Hajm()
+            if (hajms == null)
+            {
+                hajms = await httpClient.GetFromJsonAsync<IEnumerable<Hajm>>("/api/Hajms");
+                await localStorage.SetItemAsync("cachedHajms", hajms);
+            }
+
+            var result = hajms.Select( (item,index) => new Hajm()
             {
                 Counter = ++index ,
                 Name = item.Name,
@@ -171,6 +180,7 @@ public partial class HajmFilter
 
     private async Task ReloadHajm()
     {
+        await localStorage.RemoveItemAsync("cachedHajms");
         hajms = await GetData();
         await gridHajm.RefreshDataAsync();
         searchNomadName = string.Empty;

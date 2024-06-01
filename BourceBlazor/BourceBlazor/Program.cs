@@ -1,4 +1,5 @@
 using AppShared.Entities;
+using Blazored.LocalStorage;
 using BourceBlazor.Components;
 using BourceBlazor.Components.Account;
 using BourceBlazor.Data;
@@ -41,6 +42,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
 builder.Services.AddBlazorBootstrap();
+
+builder.Services.AddMemoryCache();
+builder.Services.AddBlazoredLocalStorage();
 
 var app = builder.Build();
 

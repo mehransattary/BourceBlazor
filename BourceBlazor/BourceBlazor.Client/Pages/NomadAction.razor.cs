@@ -35,6 +35,7 @@ public partial class NomadAction
 
     private HashSet<TradeHistory> selectedEmployees = new();
 
+
     /// <summary>
     ///حجم معاملات
     /// </summary>
@@ -60,6 +61,7 @@ public partial class NomadAction
 
         }
     }
+ 
 
     /// <summary>
     /// لود اولیه برای گرید
@@ -160,9 +162,7 @@ public partial class NomadAction
     AutoComplete<InstrumentSearch> InstrumentSearchAuto = default!;
     public string searchNomadName { get; set; }
     private async Task<AutoCompleteDataProviderResult<InstrumentSearch>> GetNomadProvider(AutoCompleteDataProviderRequest<InstrumentSearch> request)
-    {
-        IsLoadSearchNomadDate = true;
-        StateHasChanged();
+    {       
         Hajms.Clear();
         var value = InstrumentSearchAuto.Value;
         instrumentSearches = await GetNomadData(value);
@@ -186,8 +186,8 @@ public partial class NomadAction
         var urlSearch = configuration["Urls:UrlSearch"];
 
         try
-        {
-            var response = await httpClient.GetFromJsonAsync<RootInstrument>(urlSearch + search);
+        {           
+            RootInstrument response = await httpClient.GetFromJsonAsync<RootInstrument>(urlSearch + search);
 
             if (response != null && response.instrumentSearch.Any())
             {
@@ -211,14 +211,17 @@ public partial class NomadAction
     }
 
     private async Task OnNomadAutoCompleteChanged(InstrumentSearch instrumentSearch)
-    {    
+    {
         InsCode = instrumentSearch?.insCode;
 
-        if (closingPriceDailies is null && (!string.IsNullOrEmpty(InsCode)))
+        if ((!string.IsNullOrEmpty(InsCode)))
         {
+            IsLoadSearchNomadDate = true;
+            StateHasChanged();
+
             await GetFillHajms();
 
-             closingPriceDailies = await GetNomadDateData();
+            closingPriceDailies = await GetNomadDateData();
 
             IsLoadSearchNomadDate = false;
             StateHasChanged();
@@ -249,7 +252,6 @@ public partial class NomadAction
 
     private async Task<AutoCompleteDataProviderResult<ClosingPriceDaily>> GetNomadDataProvider(AutoCompleteDataProviderRequest<ClosingPriceDaily> request)
     {
-
         if (closingPriceDailies is null && (!string.IsNullOrEmpty(InsCode)))
         {
             closingPriceDailies = await GetNomadDateData();
@@ -269,8 +271,8 @@ public partial class NomadAction
         try
         {
             if(!string.IsNullOrEmpty(InsCode))
-            {            
-                var response = await httpClient.GetFromJsonAsync<RootClosingPriceDaily>(urlDate + InsCode + "/0");
+            {
+                RootClosingPriceDaily response = await httpClient.GetFromJsonAsync<RootClosingPriceDaily>(urlDate + InsCode + "/0");
 
                 if (response != null && response.closingPriceDaily.Any())
                 {
@@ -286,7 +288,9 @@ public partial class NomadAction
                     return closingPriceDailies;
                 }
             }
+
             return new List<ClosingPriceDaily>();
+
         }
         catch (Exception)
         {
