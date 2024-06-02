@@ -6,7 +6,8 @@ using AppShared.ViewModel.Nomad.Instrument;
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;
-using System.Runtime.CompilerServices;
+using BlazorInputTags;
+using System.Xml.Serialization;
 
 namespace BourceBlazor.Client.Pages;
 
@@ -35,15 +36,12 @@ public partial class NomadAction
 
     private HashSet<TradeHistory> selectedEmployees = new();
 
+    private InputTagOptions InputTagOptions { get; set; } = new();
 
-    /// <summary>
-    ///حجم معاملات
-    /// </summary>
+    private List<string> HajmsTags { get; set; } = new();
+
     public string SumHajm { get; set; }
 
-    /// <summary>
-    ///تعداد معاملات 
-    /// </summary>
     public string SumCount { get; set; }
 
     #endregion
@@ -51,6 +49,12 @@ public partial class NomadAction
     #region <----------> Methods
     protected override async Task OnInitializedAsync()
     {
+        InputTagOptions = new InputTagOptions()
+        {
+            DisplayLabel = false,
+            InputPlaceholder = "حجم را وارد نمائید و اینتر بزنید...",
+        };
+
         searchNomadDate = "140";
 
         if (!string.IsNullOrEmpty(InsCode))
@@ -58,21 +62,13 @@ public partial class NomadAction
             Title = $"{NomadName}  {NomadDate.ToPersianDate()} ";
             searchNomadName = NomadName;
             searchNomadDate = NomadDate.ToPersianDate();
-
         }
     }
- 
 
-    /// <summary>
-    /// لود اولیه برای گرید
-    /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
     private async Task<GridDataProviderResult<TradeHistory>> GetDataProvider(GridDataProviderRequest<TradeHistory> request)
     {
         if (TradeHistories is null)
         {
-            await GetFillHajms();
             TradeHistories = await GetData();
             IsLoad = false;
         }
@@ -81,11 +77,6 @@ public partial class NomadAction
         return request.ApplyTo(TradeHistories);
     }
 
-    /// <summary>
-    /// دیتا را از وب سرویس بگیر
-    /// </summary>
-    /// <param name="search"></param>
-    /// <returns></returns>
     private async Task<IEnumerable<TradeHistory>> GetData()
     {
         var urlAction = configuration["Urls:UrlAction"];
@@ -96,29 +87,7 @@ public partial class NomadAction
 
             if (response != null && response.tradeHistory.Any())
             {
-                var hajmsCode = Hajms.Select(x => x.HajmValue);
-
-                TradeHistories = response.tradeHistory
-                                .Where(x => x.canceled == 0 && !hajmsCode.Contains(x.qTitTran))
-                                .Select((item, index) => new TradeHistory
-                                {
-                                    //Counter = ++index,
-                                    //ردیف
-                                    nTran = item.nTran,
-                                    //زمان
-                                    hEven = item.hEven,
-                                    //حجم
-                                    qTitTran = item.qTitTran,
-                                    //قیمت
-                                    pTran = item.pTran,
-                                    canceled = item.canceled
-                                })
-                                .OrderBy(_ => _.nTran);
-
-                SumHajm = TradeHistories.Select(x=>x.qTitTran).Sum().ToString("#,0");
-
-                SumCount = TradeHistories.Select(x => x.nTran).Count().ToString("#,0");
-
+                await  GetTradeHistoriesAndSumHajmCount(response.tradeHistory);
                 return TradeHistories;
             }
 
@@ -131,23 +100,100 @@ public partial class NomadAction
 
     }
 
-    /// <summary>
-    /// انتخاب شونده ها توسط چک باکس ها
-    /// </summary>
-    /// <param name="employees"></param>
-    /// <returns></returns>
     private Task OnSelectedItemsChanged(HashSet<TradeHistory> employees)
     {
         selectedEmployees = employees is not null && employees.Any() ? employees : new();
         return Task.CompletedTask;
     }
-
-    /// <summary>
-    /// برگشتن به صفحه تاریخ نماد ها
-    /// </summary>
+ 
     private void GoBackNomadDate()
     {
         NavigationManager.NavigateTo($"/NomadDates/{InsCode}/{NomadName}");
+    }
+
+    private async Task SaveHajm(string tag)
+    {
+        var hajmModels = new List<Hajm>();
+
+        searchNomadName = InstrumentSearchAuto.Value;
+
+        if (!string.IsNullOrEmpty(searchNomadName) && HajmsTags.Any())
+        {
+            var hajmModel = new Hajm()
+            {
+                Name = searchNomadName,
+                Code = InsCode,
+                HajmValue = Convert.ToInt32(tag)
+            };
+
+            hajmModels.Add(hajmModel);
+
+            foreach (var _hajm in hajmModels)
+            {
+                await httpClient.PostAsJsonAsync<Hajm>("/api/Hajms", _hajm);
+            }
+           
+        }
+
+    }
+   
+    private async Task DeleteHajm(string tag)
+    {
+        int _tag = Convert.ToInt32(tag);
+
+        await httpClient.DeleteAsync($"/DeleteHajmsByTagsAndCode/{_tag}/{InsCode}");
+        
+    }
+
+    private async Task GetTradeHistoriesAndSumHajmCount(List<TradeHistory> tradeHistory)
+    {
+        await GetFillHajms();     
+
+        TradeHistories = tradeHistory
+                        .Where(x => x.canceled == 0)
+                        .Select((item, index) => new TradeHistory
+                        {
+                            //Counter = ++index,
+                            //ردیف
+                            nTran = item.nTran,
+                            //زمان
+                            hEven = item.hEven,
+                            //حجم
+                            qTitTran = item.qTitTran,
+                            //قیمت
+                            pTran = item.pTran,
+                            canceled = item.canceled
+                        })
+                        .OrderBy(_ => _.nTran);
+
+        SumHajm = TradeHistories.Select(x => x.qTitTran).Sum().ToString("#,0");
+        SumCount = TradeHistories.Select(x => x.nTran).Count().ToString("#,0");
+        StateHasChanged();
+    }
+
+    private async Task ReoladGrid()
+    {       
+        TradeHistories = await GetData();    
+        await grid.RefreshDataAsync();  
+        StateHasChanged();
+    }
+    private async Task DoFilterOnGrid()
+    {
+        IsLoad = true;
+        grid.Class = "opacity_3";
+        await grid.RefreshDataAsync();
+
+        await GetData();
+        var hajmsCode = Hajms.Select(x => x.HajmValue);
+        TradeHistories = TradeHistories.Where(x => !hajmsCode.Contains(x.qTitTran));
+        SumHajm = TradeHistories.Select(x => x.qTitTran).Sum().ToString("#,0");
+        SumCount = TradeHistories.Select(x => x.nTran).Count().ToString("#,0");  
+        
+        IsLoad = false;
+        grid.Class = "opacity1";
+        await grid.RefreshDataAsync();
+
+        StateHasChanged();
     }
     #endregion
 }
@@ -157,23 +203,22 @@ public partial class NomadAction
 /// </summary>
 public partial class NomadAction
 {
-    private IEnumerable<InstrumentSearch> instrumentSearches = default!;
+    private List<InstrumentSearch> instrumentSearches = new();
 
-    AutoComplete<InstrumentSearch> InstrumentSearchAuto = default!;
-    public string searchNomadName { get; set; }
+    private AutoComplete<InstrumentSearch> InstrumentSearchAuto = default!;
+
+    private string searchNomadName { get; set; }
+
     private async Task<AutoCompleteDataProviderResult<InstrumentSearch>> GetNomadProvider(AutoCompleteDataProviderRequest<InstrumentSearch> request)
-    {       
+    {
         Hajms.Clear();
         var value = InstrumentSearchAuto.Value;
-        instrumentSearches = await GetNomadData(value);
+        value = value.FixPersianChars();
+        InstrumentSearchAuto.Value = value;
+        await GetNomadData(value);
         return request.ApplyTo(instrumentSearches);
-    }
+    } 
 
-    /// <summary>
-    /// دیتا را از وب سرویس بگیر
-    /// </summary>
-    /// <param name="search"></param>
-    /// <returns></returns>
     private async Task<IEnumerable<InstrumentSearch>> GetNomadData(string search)
     {
         search = (string.IsNullOrEmpty(search)) ? "خودرو" : search;
@@ -186,18 +231,22 @@ public partial class NomadAction
         var urlSearch = configuration["Urls:UrlSearch"];
 
         try
-        {           
+        {
             RootInstrument response = await httpClient.GetFromJsonAsync<RootInstrument>(urlSearch + search);
 
             if (response != null && response.instrumentSearch.Any())
             {
+                instrumentSearches.Clear();
+
                 instrumentSearches = response.instrumentSearch.Select((item, index) => new InstrumentSearch
                 {
                     Counter = ++index,
-                    lVal30 = item.lVal30,
+                    //نام کامل
+                    lVal30 = item.lVal18AFC +" - "+ item.lVal30,
+                    //نام اختصار
                     lVal18AFC = item.lVal18AFC,
-                    insCode = item.insCode,              
-                });
+                    insCode = item.insCode,
+                }).ToList();
 
                 return instrumentSearches;
             }
@@ -217,20 +266,26 @@ public partial class NomadAction
         if ((!string.IsNullOrEmpty(InsCode)))
         {
             IsLoadSearchNomadDate = true;
-            StateHasChanged();
 
             await GetFillHajms();
+
+            HajmsTags = Hajms.Select(x => x.HajmValue.ToString()).ToList();
 
             closingPriceDailies = await GetNomadDateData();
 
             IsLoadSearchNomadDate = false;
+
             StateHasChanged();
+        }
+        else
+        {
+            HajmsTags.Clear();
         }
     }
 
     private async Task GetFillHajms()
     {
-        if(!string.IsNullOrEmpty(InsCode))
+        if (!string.IsNullOrEmpty(InsCode))
         {
             Hajms = await httpClient.GetFromJsonAsync<List<Hajm>>($"/GetHajmByCode/{InsCode}");
         }
@@ -259,30 +314,25 @@ public partial class NomadAction
         return await Task.FromResult(request.ApplyTo(closingPriceDailies.OrderBy(customer => customer.Counter)));
     }
 
-    /// <summary>
-    /// دیتا را از وب سرویس بگیر
-    /// </summary>
-    /// <param name="search"></param>
-    /// <returns></returns>
     private async Task<IEnumerable<ClosingPriceDaily>> GetNomadDateData()
     {
         var urlDate = configuration["Urls:UrlDate"];
 
         try
         {
-            if(!string.IsNullOrEmpty(InsCode))
+            if (!string.IsNullOrEmpty(InsCode))
             {
                 RootClosingPriceDaily response = await httpClient.GetFromJsonAsync<RootClosingPriceDaily>(urlDate + InsCode + "/0");
 
                 if (response != null && response.closingPriceDaily.Any())
                 {
-                    closingPriceDailies = response.closingPriceDaily                                        
+                    closingPriceDailies = response.closingPriceDaily
                                             .Select((item, index) => new ClosingPriceDaily
                                             {
-                                                Counter = ++index ,
-                                                insCode = item.insCode ,
-                                                dEvenPersian = item.dEven.ToPersianDate() ,    
-                                                dEven =item.dEven
+                                                Counter = ++index,
+                                                insCode = item.insCode,
+                                                dEvenPersian = item.dEven.ToPersianDate(),
+                                                dEven = item.dEven
                                             });
 
                     return closingPriceDailies;
@@ -300,9 +350,15 @@ public partial class NomadAction
 
     private async Task OnNomadDateAutoCompleteChanged(ClosingPriceDaily closingPriceDaily)
     {
-        NomadDate = closingPriceDaily.dEven;
-        TradeHistories = await GetData();
-        await grid.RefreshDataAsync();
-        StateHasChanged();
+        if (closingPriceDaily == null)
+        {
+            SumHajm = string.Empty;
+            SumCount = string.Empty; 
+        }
+        else
+        {
+            NomadDate = closingPriceDaily.dEven;
+            await ReoladGrid();
+        }
     }
 }

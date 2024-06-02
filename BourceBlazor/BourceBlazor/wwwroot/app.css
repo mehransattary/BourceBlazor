@@ -124,3 +124,10 @@ h1:focus {
 .actions{
     width:118px;
 }
+
+.opacity_3 {
+    opacity: 0.3;
+}
+.opacity1 {
+    opacity: 1;
+}

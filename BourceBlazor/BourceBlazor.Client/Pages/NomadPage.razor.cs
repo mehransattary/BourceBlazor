@@ -1,4 +1,5 @@
-﻿using AppShared.ViewModel.Nomad.Instrument;
+﻿using AppShared.Helper;
+using AppShared.ViewModel.Nomad.Instrument;
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;
@@ -80,6 +81,8 @@ public partial class NomadPage
         }
 
         search = (string.IsNullOrEmpty(search)) ? "خودرو" : search;
+
+        search = search.FixPersianChars();
 
         if (string.IsNullOrEmpty(search))
         {

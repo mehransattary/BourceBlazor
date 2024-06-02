@@ -49,7 +49,7 @@
 
 
 <Grid @ref="gridHajm"
-      TItem="Hajm"
+      TItem="HajmViewModel"
       Data="hajms"
       Class="table table-hover table-bordered table-striped mt-3"
       DataProvider="GetDataProvider"
@@ -59,25 +59,30 @@
       AllowPaging="false"
       EmptyText="اطلاعاتی وجود ندارد">
 
-    <GridColumn TItem="Hajm" HeaderText="عملیات" PropertyName="Id" Sortable="false" Filterable=false Class="actions">
+@*     <GridColumn TItem="Hajm" HeaderText="عملیات" PropertyName="Id" Sortable="false" Filterable=false Class="actions">
        
         <Button class="btn btn-outline-danger" @onclick="()=>DeleteHajm(context.Id)">
             <Icon Name="IconName.Trash"></Icon>
         </Button>
 
-    </GridColumn>
+    </GridColumn> *@
 
-    <GridColumn TItem="Hajm" HeaderText="ردیف" PropertyName="Counter" SortKeySelector="item => item.Counter">
+   @*  <GridColumn TItem="HajmViewModel" HeaderText="ردیف" PropertyName="Counter" SortKeySelector="item => item.Counter">
         @context.Counter
+    </GridColumn> *@
+
+    <GridColumn TItem="HajmViewModel" HeaderText=" نماد" PropertyName="HajmName" SortKeySelector="item => item.HajmName">
+    @context.HajmName
     </GridColumn>
 
-    <GridColumn TItem="Hajm" HeaderText=" نماد" PropertyName="Name" SortKeySelector="item => item.Name">
-    @context.Name
-    </GridColumn>
-
-    <GridColumn TItem="Hajm" HeaderText="حجم" PropertyName="HajmName" SortKeySelector="item => item.HajmValue">
-        @context.HajmValue.ToString("#,0")
-
+    <GridColumn TItem="HajmViewModel" HeaderText="حجم" PropertyName="Hajms">
+        @foreach (var item in @context.Hajms)
+        {
+            <Button Color="ButtonColor.Danger" Class="me-1" Outline="true">
+                <Icon Name="IconName.TrashFill" @onclick="()=>DeleteHajm(item.Id)" />
+                    @item.HajmValue 
+            </Button>
+        }
     </GridColumn>
 
 </Grid>

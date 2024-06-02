@@ -6,11 +6,12 @@
     <div class="container-fluid" dir="ltr">
         <a class="navbar-brand" href="#">معاملات بورس </a>
     </div>
+
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<input type="checkbox" title="Navigation menu" class="navbar-toggler"  />
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+<div class="nav-scrollable " onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
@@ -79,6 +80,8 @@
 @code {
     private string? currentUrl;
 
+    private bool displayMenu = false;
+
     protected override void OnInitialized()
     {
         currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
@@ -94,6 +97,11 @@
     public void Dispose()
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+
+    private void ShowMenu()
+    {
+        displayMenu = !displayMenu;
     }
 }
 

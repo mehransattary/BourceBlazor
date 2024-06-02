@@ -134,6 +134,23 @@ namespace BourceBlazor.Controller
             return NoContent();
         }
 
+        [HttpDelete("/DeleteHajmsByTagsAndCode/{hajmValue}/{insCode}")]
+        public async Task<IActionResult> DeleteHajmsByTagsAndCode(int hajmValue, string insCode)
+        {
+            var hajm = await _context.Hajm.FirstOrDefaultAsync(x => x.HajmValue == hajmValue && x.Code == insCode);
+
+            if (hajm == null)
+            {
+                return NotFound();
+            }
+
+            _context.Hajm.Remove(hajm);
+            await _context.SaveChangesAsync();
+            _memoryCache.Remove("cachedHajms");
+            return NoContent();
+        }
+
+        
         private bool HajmExists(Guid id)
         {
             return _context.Hajm.Any(e => e.Id == id);

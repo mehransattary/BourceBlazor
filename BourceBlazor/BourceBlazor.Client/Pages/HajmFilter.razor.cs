@@ -1,11 +1,9 @@
 ﻿using AppShared.Entities;
+using AppShared.Helper;
 using AppShared.ViewModel.Nomad.Instrument;
 using BlazorBootstrap;
-using Blazored.LocalStorage;
 using BlazorInputTags;
-using Microsoft.AspNetCore.Components;
 using System.Diagnostics.Metrics;
-using System.Linq;
 using System.Net.Http.Json;
 
 namespace BourceBlazor.Client.Pages;
@@ -17,11 +15,11 @@ public partial class HajmFilter
 {
     //=========Fields==========================//
 
-    Grid<Hajm> gridHajm = default!;
+    Grid<HajmViewModel> gridHajm = default!;
 
     private bool IsLoad { get; set; } = true;
 
-    private IEnumerable<Hajm> hajms = default!;
+    private IEnumerable<HajmViewModel> hajms = default!;
 
     //==========Methods=========================//
     protected override void OnInitialized()
@@ -33,7 +31,7 @@ public partial class HajmFilter
         };
     }
 
-    private async Task<GridDataProviderResult<Hajm>> GetDataProvider(GridDataProviderRequest<Hajm> request)
+    private async Task<GridDataProviderResult<HajmViewModel>> GetDataProvider(GridDataProviderRequest<HajmViewModel> request)
     {
         if (hajms is null)
         {
@@ -45,25 +43,23 @@ public partial class HajmFilter
         return request.ApplyTo(hajms);
     }
 
-    private async Task<IEnumerable<Hajm>> GetData()
+    private async Task<IEnumerable<HajmViewModel>> GetData()
     {
         try
         {
-            hajms = await localStorage.GetItemAsync<IEnumerable<Hajm>>("cachedHajms");
+            var resultApi = await httpClient.GetFromJsonAsync<IEnumerable<Hajm>>("/api/Hajms");
 
-            if (hajms == null)
+            var result = resultApi.GroupBy(x => x.Name).Select(x => new HajmViewModel()
             {
-                hajms = await httpClient.GetFromJsonAsync<IEnumerable<Hajm>>("/api/Hajms");
-                await localStorage.SetItemAsync("cachedHajms", hajms);
-            }
+              
+                HajmName = x.Key,
+                Hajms = x.Select(a=>new Hajm()
+                {                  
+                    HajmValue =a.HajmValue,
+                    Id =a.Id                    
 
-            var result = hajms.Select( (item,index) => new Hajm()
-            {
-                Counter = ++index ,
-                Name = item.Name,
-                HajmValue =item.HajmValue,
-                Id = item.Id
-            });
+                }).ToList()
+            }) ;
 
             gridHajm.Data = result;
 
@@ -73,7 +69,7 @@ public partial class HajmFilter
         }
         catch (Exception)
         {
-            return new List<Hajm>();
+            return new List<HajmViewModel>();
         }
     }
 
@@ -108,7 +104,9 @@ public partial class HajmFilter
     private async Task<AutoCompleteDataProviderResult<InstrumentSearch>> GetNomadProvider(AutoCompleteDataProviderRequest<InstrumentSearch> request)
     {
         var value = InstrumentSearchAuto.Value;
-        instrumentSearches = await GetNomadData(value);
+        value = value.FixPersianChars();
+        InstrumentSearchAuto.Value = value;
+        instrumentSearches = await GetNomadData(value);   
         return request.ApplyTo(instrumentSearches);
     }
  
@@ -124,7 +122,8 @@ public partial class HajmFilter
         var urlSearch = configuration["Urls:UrlSearch"];
 
         try
-        {
+        {       
+
             var response = await httpClient.GetFromJsonAsync<RootInstrument>(urlSearch + search);
 
             if (response != null && response.instrumentSearch.Any())
@@ -132,10 +131,12 @@ public partial class HajmFilter
                 instrumentSearches = response.instrumentSearch.Select((item, index) => new InstrumentSearch
                 {
                     Counter = ++index,
-                    lVal30 = item.lVal30,
+                    //نام کامل
+                    lVal30 = item.lVal18AFC + " - " + item.lVal30,
+                    //نام اختصار
                     lVal18AFC = item.lVal18AFC,
                     insCode = item.insCode,
-                });
+                }).ToList();
 
                 return instrumentSearches;
             }
@@ -193,4 +194,12 @@ public partial class HajmFilter
         searchNomadInsCode = instrumentSearch.insCode;
     }
 
+}
+
+public class HajmViewModel
+{
+    public int Counter { get; set; }
+    public string HajmName { get; set; }
+
+    public List<Hajm> Hajms { get; set; } = new();
 }

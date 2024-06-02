@@ -10,9 +10,8 @@
 
 <div class="row">
 
-
-
-    <div class="col-md-5 col-5">
+    <!--نماد-->
+    <div class="col-md-4">
 
         <AutoComplete @bind-Value="searchNomadName"
                       @ref="InstrumentSearchAuto"
@@ -20,11 +19,14 @@
                       DataProvider="GetNomadProvider"
                       PropertyName="lVal30"
                       Placeholder="نماد ....."
+                      LoadingText="درحال لود..."
+                      EmptyText="پیدا نشد."
                       OnChanged="(InstrumentSearch instrumentSearch) => OnNomadAutoCompleteChanged(instrumentSearch)" />
 
     </div>
 
-    <div class="col-md-5 col-5">
+    <!--تاریخ-->
+    <div class="col-md-4">
 
         @if (IsLoadSearchNomadDate)
         {
@@ -40,51 +42,49 @@
                           DataProvider="GetNomadDataProvider"
                           PropertyName="dEvenPersian"
                           Placeholder="تاریخ ....."
+                          LoadingText="درحال لود..."
+                          EmptyText="پیدا نشد."
                           OnChanged="(ClosingPriceDaily closingPriceDaily) => OnNomadDateAutoCompleteChanged(closingPriceDaily)" />
 
         }
 
     </div>
 
+    <div class="col-md-2">
+        @if (!string.IsNullOrEmpty(SumHajm))
+        {
+            <Badge Color="BadgeColor.Primary" Class="p-2" IndicatorType="BadgeIndicatorType.RoundedPill" Style="font-size: 17px;">
+                حجم معاملات :     @SumHajm
+            </Badge>
+        }
+    </div>
 
 
+    <!--بازگشت-->
     <div class="col-md-2" style="text-align:end">
         <Button Outline="true" Color="ButtonColor.Primary" @onclick=" ()=> GoBackNomadDate()"> <Icon Name="IconName.ArrowLeftSquare" />  </Button>
     </div>
 
+    <div class="col-md-7 mt-2">     
+            <InputTags Value="HajmsTags" Options="InputTagOptions" OnTagRemoved="DeleteHajm" OnTagAdded="SaveHajm" />   
+     </div>
+
+    <!--اعمال-->
+    <div class="col-md-1 mt-2" style="text-align:end">
+        <Button Outline="true" Color="ButtonColor.Primary" @onclick="DoFilterOnGrid"> <Icon Name="IconName.Search" />  </Button>
+    </div>
+
+    <div class="col-md-4 " >
+        @if (!string.IsNullOrEmpty(SumCount))
+        {
+            <Badge Color="BadgeColor.Success" Class="me-2 p-2" IndicatorType="BadgeIndicatorType.RoundedPill" Style="font-size: 17px;">
+                تعداد معاملات :     @SumCount
+            </Badge>
+        }
+    </div>
+
 </div>
 
-@if (Hajms.Any())
-{
-    <div class="row mt-2 ">
-        <div class="col-md-6 col-12">
-            <label>
-                حجم های فیلتر شده :
-            </label>
-            @foreach (var item in Hajms)
-            {
-                <Badge Color="BadgeColor.Danger" Class="me-2">
-                    <Icon Name="IconName.Ticket"></Icon>
-                    @item.HajmValue.ToString("#,0")
-                </Badge>
-            }
-        </div>
-        <div class="col-md-6 col-12" style="text-align:end;">
-            @if (!string.IsNullOrEmpty(SumHajm))
-            {
-                <Badge Color="BadgeColor.Primary" Class="p-2" IndicatorType="BadgeIndicatorType.RoundedPill">
-                    حجم معاملات :     @SumHajm
-                </Badge>
-            }
-            @if (!string.IsNullOrEmpty(SumCount))
-            {
-                <Badge Color="BadgeColor.Success" Class="me-2 p-2" IndicatorType="BadgeIndicatorType.RoundedPill">
-                    تعداد معاملات :     @SumCount
-                </Badge>
-            }
-        </div>
-    </div>
-}
 
 @if (IsLoad)
 {
@@ -96,7 +96,7 @@
 <Grid @ref="grid"
       TItem="TradeHistory"
       Data="TradeHistories"
-      Class="table table-hover table-bordered table-striped mt-3"
+      Class="table table-hover table-bordered table-striped mt-3  "
       DataProvider="GetDataProvider"
       AllowFiltering="true"
       AllowSorting="true"
@@ -105,12 +105,13 @@
       SelectedItemsChanged="OnSelectedItemsChanged"
       Responsive="true"
       AllowPaging="true"
-      PageSize="10"
+      PageSize="30"
       PageSizeSelectorVisible
       PaginationItemsTextFormat="{0} - {1} از {2} ردیف"
-      PageSizeSelectorItems="[10,20,30,100]"
+      PageSizeSelectorItems="[30,50,100]"
       ItemsPerPageText="تعداد نمایش"
-      EmptyText="اطلاعاتی وجود ندارد">
+      EmptyText="اطلاعاتی وجود ندارد"
+      Style="zoom: 0.8;">
 
 
     <GridColumn TItem="TradeHistory" HeaderText="ردیف" PropertyName="nTran" SortKeySelector="item => item.nTran">
@@ -124,7 +125,7 @@
     <GridColumn TItem="TradeHistory" HeaderText="حجم" PropertyName="qTitTran" SortKeySelector="item => item.qTitTran">
         @context.qTitTran.ToString("#,0")
     </GridColumn>
-    
+
     <GridColumn TItem="TradeHistory" HeaderText="قیمت" PropertyName="pTran" SortKeySelector="item => item.pTran">
         @context.pTran.ToString("#,0")
     </GridColumn>
