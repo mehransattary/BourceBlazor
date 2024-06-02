@@ -61,7 +61,7 @@ a, .btn-link {
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 .content {
@@ -99,7 +99,7 @@ h1:focus {
 }
 
 .bi[b-1lnbizrif9] {
-    margin-left:10px;
+    margin-left: 10px;
 }
 
 .loader {
@@ -108,26 +108,55 @@ h1:focus {
     right: 55%;
 }
 
-.dropdown-item
-{
-    text-align:right;
+.dropdown-item {
+    text-align: right;
 }
-.bb-grid-pagination-text
-{
-    direction:ltr;
+
+.bb-grid-pagination-text {
+    direction: ltr;
 }
 
 .blazor-tag-input {
     height: 35px;
-    padding:0px 8px;
+    padding: 0px 8px;
 }
-.actions{
-    width:118px;
+
+.actions {
+    width: 118px;
 }
 
 .opacity_3 {
     opacity: 0.3;
 }
+
 .opacity1 {
     opacity: 1;
+}
+
+.menuButton {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    cursor: pointer;
+    display: block;
+}
+.showdesktop {
+    display: flex;
+}
+
+.showmobile {
+    display: none;
+}
+@media (max-width: 641px) {
+    .menuButton {
+        display: none;
+    }
+
+    .showdesktop {
+        display: none;
+    }
+
+    .showmobile {
+        display: flex;
+    }
 }

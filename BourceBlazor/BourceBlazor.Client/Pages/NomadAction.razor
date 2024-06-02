@@ -8,7 +8,7 @@
     @Title
 </PageTitle>
 
-<div class="row">
+<div class="row showdesktop">
 
     <!--نماد-->
     <div class="col-md-4">
@@ -50,6 +50,7 @@
 
     </div>
 
+    <!-- حجم معاملات-->
     <div class="col-md-2">
         @if (!string.IsNullOrEmpty(SumHajm))
         {
@@ -59,12 +60,12 @@
         }
     </div>
 
-
     <!--بازگشت-->
     <div class="col-md-2" style="text-align:end">
         <Button Outline="true" Color="ButtonColor.Primary" @onclick=" ()=> GoBackNomadDate()"> <Icon Name="IconName.ArrowLeftSquare" />  </Button>
     </div>
 
+    <!--حجم های فیلتری-->
     <div class="col-md-7 mt-2">     
             <InputTags Value="HajmsTags" Options="InputTagOptions" OnTagRemoved="DeleteHajm" OnTagAdded="SaveHajm" />   
      </div>
@@ -74,6 +75,7 @@
         <Button Outline="true" Color="ButtonColor.Primary" @onclick="DoFilterOnGrid"> <Icon Name="IconName.Search" />  </Button>
     </div>
 
+    <!-- تعداد معاملات-->
     <div class="col-md-4 " >
         @if (!string.IsNullOrEmpty(SumCount))
         {
@@ -85,6 +87,92 @@
 
 </div>
 
+<div class="row showmobile">
+
+    <!--نماد-->
+    <div class="col-10 ">
+
+        <AutoComplete @bind-Value="searchNomadName"
+                      @ref="InstrumentSearchAuto"
+                      TItem="InstrumentSearch"
+                      DataProvider="GetNomadProvider"
+                      PropertyName="lVal30"
+                      Placeholder="نماد ....."
+                      LoadingText="درحال لود..."
+                      EmptyText="پیدا نشد."
+                      OnChanged="(InstrumentSearch instrumentSearch) => OnNomadAutoCompleteChanged(instrumentSearch)" />
+
+    </div>
+    
+      <!--بازگشت-->
+    <div class="col-2" style="text-align:end">
+        <Button Outline="true" Color="ButtonColor.Primary" @onclick=" ()=> GoBackNomadDate()"> <Icon Name="IconName.ArrowLeftSquare" />  </Button>
+    </div>
+
+    <!--تاریخ-->
+    <div class="col-12 mt-2">
+
+        @if (IsLoadSearchNomadDate)
+        {
+            <div class="text-center ">
+                <Spinner Type="SpinnerType.Dots" Class="me-3" Color="SpinnerColor.Primary" Size="SpinnerSize.Large" />
+            </div>
+        }
+        else
+        {
+            <AutoComplete @bind-Value="searchNomadDate"
+                          @ref="DateAuto"
+                          TItem="ClosingPriceDaily"
+                          DataProvider="GetNomadDataProvider"
+                          PropertyName="dEvenPersian"
+                          Placeholder="تاریخ ....."
+                          LoadingText="درحال لود..."
+                          EmptyText="پیدا نشد."
+                          OnChanged="(ClosingPriceDaily closingPriceDaily) => OnNomadDateAutoCompleteChanged(closingPriceDaily)" />
+
+        }
+
+    </div>    
+
+</div>
+
+<div class="row showmobile">
+
+    <!--حجم های فیلتری-->
+    <div class="col-10 mt-2">
+        <InputTags Value="HajmsTags" Options="InputTagOptions" OnTagRemoved="DeleteHajm" OnTagAdded="SaveHajm" />
+    </div>
+
+    <!--اعمال-->
+    <div class="col-2 mt-2" style="text-align:end">
+        <Button Outline="true" Color="ButtonColor.Primary" @onclick="DoFilterOnGrid"> <Icon Name="IconName.Search" />  </Button>
+    </div>
+
+</div>
+
+<div class="row showmobile">
+
+    <!-- حجم معاملات-->
+    <div class="col-6 mt-2">
+        @if (!string.IsNullOrEmpty(SumHajm))
+        {
+            <Badge Color="BadgeColor.Primary" Class="p-2" IndicatorType="BadgeIndicatorType.RoundedPill" Style="font-size: 17px;">
+                حجم معاملات :     @SumHajm
+            </Badge>
+        }
+    </div>
+
+    <!-- تعداد معاملات-->
+    <div class="col-6 mt-2">
+        @if (!string.IsNullOrEmpty(SumCount))
+        {
+            <Badge Color="BadgeColor.Success" Class="me-2 p-2" IndicatorType="BadgeIndicatorType.RoundedPill" Style="font-size: 17px;">
+                تعداد معاملات :     @SumCount
+            </Badge>
+        }
+    </div>
+
+</div>
 
 @if (IsLoad)
 {
@@ -100,7 +188,7 @@
       DataProvider="GetDataProvider"
       AllowFiltering="true"
       AllowSorting="true"
-      AllowSelection="true"
+      AllowSelection="false"
       SelectionMode="GridSelectionMode.Multiple"
       SelectedItemsChanged="OnSelectedItemsChanged"
       Responsive="true"
@@ -111,7 +199,7 @@
       PageSizeSelectorItems="[30,50,100]"
       ItemsPerPageText="تعداد نمایش"
       EmptyText="اطلاعاتی وجود ندارد"
-      Style="zoom: 0.8;">
+      Style="zoom: 0.7;">
 
 
     <GridColumn TItem="TradeHistory" HeaderText="ردیف" PropertyName="nTran" SortKeySelector="item => item.nTran">

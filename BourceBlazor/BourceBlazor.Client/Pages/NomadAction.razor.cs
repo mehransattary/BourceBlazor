@@ -280,6 +280,12 @@ public partial class NomadAction
         else
         {
             HajmsTags.Clear();
+            TradeHistories = null;
+            searchNomadDate = "140";
+            //await DateAuto.RefreshDataAsync();
+            await grid.RefreshDataAsync();
+            SumHajm = string.Empty;
+            SumCount = string.Empty;
         }
     }
 
