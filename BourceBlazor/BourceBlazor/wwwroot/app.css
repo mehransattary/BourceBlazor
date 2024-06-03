@@ -140,7 +140,9 @@ h1:focus {
     cursor: pointer;
     display: block;
 }
-
+.autocomplete-list {  
+    transform: translate(0px, 41px)!important;
+}
 @media (max-width: 641px) {
     .menuButton {
         display: none;

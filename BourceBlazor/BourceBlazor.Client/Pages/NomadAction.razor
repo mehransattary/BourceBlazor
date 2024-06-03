@@ -8,7 +8,7 @@
     @Title
 </PageTitle>
 
-<div class="row">
+<div class="row" >
 
     <div class="col-md-1 col-12">
         <Icon Name="IconName.ColumnsGap" Size="IconSize.x4" @onclick="ToggleContentAsync" Class="mb-1" />
@@ -17,48 +17,18 @@
     <div class="col-md-11 col-12">
         <Collapse @ref="collapse1">
             <Card>
-                <CardBody>
+                <CardBody Style="zoom: 0.8;">
 
                     <div class="row">
 
                         <!--نماد-->
                         <div class="col-md-5 col-12 mt-2">
-
-                            <AutoComplete @bind-Value="searchNomadName"
-                                          @ref="InstrumentNomadSearchAuto"
-                                          TItem="InstrumentSearch"
-                                          DataProvider="GetNomadProvider"
-                                          PropertyName="lVal30"
-                                          Placeholder="نماد ....."
-                                          LoadingText="درحال لود..."
-                                          EmptyText="پیدا نشد."
-                                          OnChanged="(InstrumentSearch instrumentSearch) => OnNomadAutoCompleteChanged(instrumentSearch)" />
-
+                            <SearchNomad EventCallbackInstrumentSearch="GetEventCallbackInstrumentSearch" />
                         </div>
 
                         <!--تاریخ-->
                         <div class="col-md-5  col-10 mt-2">
-
-                            @if (IsLoadSearchNomadDate)
-                            {
-                                <div class="text-center ">
-                                    <Spinner Type="SpinnerType.Dots" Class="me-3" Color="SpinnerColor.Primary" Size="SpinnerSize.Large" />
-                                </div>
-                            }
-                            else
-                            {
-                                <AutoComplete @bind-Value="searchNomadDate"
-                                              @ref="DateAuto"
-                                              TItem="ClosingPriceDaily"
-                                              DataProvider="GetNomadDataProvider"
-                                              PropertyName="dEvenPersian"
-                                              Placeholder="تاریخ ....."
-                                              LoadingText="درحال لود..."
-                                              EmptyText="پیدا نشد."
-                                              OnChanged="(ClosingPriceDaily closingPriceDaily) => OnNomadDateAutoCompleteChanged(closingPriceDaily)" />
-
-                            }
-
+                            <SearchDate InsCode="@InsCode" EventCallbackOnChangeDate="GetEventCallbackOnChangeDate" />
                         </div>
 
                         <!--بازگشت-->
@@ -131,8 +101,6 @@
       AllowFiltering="true"
       AllowSorting="true"
       AllowSelection="false"
-      SelectionMode="GridSelectionMode.Multiple"
-      SelectedItemsChanged="OnSelectedItemsChanged"
       Responsive="true"
       AllowPaging="true"
       PageSize="30"

@@ -1,0 +1,9 @@
+﻿<AutoComplete @bind-Value="searchNomadDate"
+              @ref="RefAutoComplete"
+              TItem="ClosingPriceDaily"
+              DataProvider="GetNomadDataProvider"
+              PropertyName="dEvenPersian"
+              Placeholder="تاریخ ....."
+              LoadingText="درحال لود..."
+              EmptyText="پیدا نشد."
+              OnChanged="(ClosingPriceDaily closingPriceDaily) => OnNomadDateAutoCompleteChanged(closingPriceDaily)" />

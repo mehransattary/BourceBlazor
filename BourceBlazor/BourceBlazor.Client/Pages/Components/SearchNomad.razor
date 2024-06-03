@@ -1,0 +1,11 @@
+﻿
+
+<AutoComplete @bind-Value="NomadName"
+              @ref="RefAutoComplete"
+              TItem="InstrumentSearch"
+              DataProvider="GetNomadProvider"
+              PropertyName="lVal30"
+              Placeholder="نماد ....."
+              LoadingText="درحال لود..."
+              EmptyText="پیدا نشد."
+              OnChanged="(InstrumentSearch instrumentSearch) => OnNomadAutoCompleteChanged(instrumentSearch)" />
