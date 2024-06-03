@@ -140,23 +140,10 @@ h1:focus {
     cursor: pointer;
     display: block;
 }
-.showdesktop {
-    display: flex;
-}
 
-.showmobile {
-    display: none;
-}
 @media (max-width: 641px) {
     .menuButton {
         display: none;
     }
 
-    .showdesktop {
-        display: none;
-    }
-
-    .showmobile {
-        display: flex;
-    }
 }

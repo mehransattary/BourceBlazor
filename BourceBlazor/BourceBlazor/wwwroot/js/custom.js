@@ -10,6 +10,13 @@ function ShowMenu() {
     else {
         document.querySelector('.sidebar').style.display = 'block';
         this.IsSHowMenu = true;
-    }       
-    
+    }  
+}
+
+
+function SetOpacity_3() {
+    document.querySelector('.gridNomadActions').classList.add("opacity_3");
+}
+function SetOpacityFull() {
+    document.querySelector('.gridNomadActions').classList.add("opacity1");
 }
