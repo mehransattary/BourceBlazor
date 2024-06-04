@@ -1,0 +1,33 @@
+﻿@if (FormolSwitches.Any())
+{
+  
+        <hr />
+        @foreach (var item in FormolSwitches)
+        {
+            <div class="col-md-4 col-6 mt-2">
+
+
+                <div class="form-check form-switch text-end">
+                    <Button Type="ButtonType.Button" @onclick="()=> AddToFormolSwitchViewModel(item)" Color="ButtonColor.Success"
+                            Position="Position.Relative" Outline="@(item.Checked?false:true)">
+
+                        حجم : @item.Formol.HajmFormol.ToString("#,0") ,  زمان : @item.Formol.TimeFormol ثانیه
+
+                        @if (item.Checked)
+                        {
+                            <Badge Color="BadgeColor.Danger"
+                                   Position="Position.Absolute"
+                                   Placement="BadgePlacement.TopRight"
+                                   IndicatorType="BadgeIndicatorType.RoundedPill"
+                                   VisuallyHiddenText="unread messages">
+                                @item.Counter
+                            </Badge>
+                        }
+                    </Button>
+
+                </div>
+
+            </div>
+        }
+
+}

@@ -7,10 +7,9 @@ using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;
 using BlazorInputTags;
-using System.Xml.Serialization;
 using Microsoft.JSInterop;
-using BourceBlazor.Client.Pages.Components;
-
+using AppShared.ViewModel;
+using System.Reflection;
 namespace BourceBlazor.Client.Pages;
 
 /// <summary>
@@ -19,7 +18,6 @@ namespace BourceBlazor.Client.Pages;
 public partial class NomadAction
 {
     //==========Parameter========================//
-
     [Parameter]
     public string InsCode { get; set; } = string.Empty;
 
@@ -28,7 +26,6 @@ public partial class NomadAction
 
     [Parameter]
     public int NomadDate { get; set; }
-
 
     //==========Fileds========================//
     private string Title { get; set; } = string.Empty;
@@ -40,8 +37,8 @@ public partial class NomadAction
     private IEnumerable<TradeHistory> TradeHistories = default!;
 
 
-    //==========Methods========================//
 
+    //==========Methods========================//
     protected override void OnInitialized()
     {
         InputTagOptions = new InputTagOptions()
@@ -120,9 +117,19 @@ public partial class NomadAction
                        canceled = item.canceled
                    })
                    .OrderBy(_ => _.nTran);
-    } 
-  
+    }
+
+
+
+    private List<FormolSwitchViewModel> SeletedFormolSwitches { get; set; } = new();
+
+    private void GetEventCallbackSelectedFormolSwitches(List<FormolSwitchViewModel> formolSwitches)
+    {
+        SeletedFormolSwitches = formolSwitches;
+    }
+
 }
+
 
 /// <summary>
 /// جستجوی نماد
@@ -137,17 +144,18 @@ public partial class NomadAction
             InsCode = instrumentSearch!.insCode!;
             NomadName = instrumentSearch!.lVal30;
             await GetFillHajms();
-            
             StateHasChanged();
         }
         else
         {
-            HajmsTags.Clear();
+            IsCleanNomad = true;
+            HajmsTags.Clear();            
             NomadName = string.Empty;
             InsCode = string.Empty;
             TradeHistories = null;
             await grid.RefreshDataAsync();
             SetEmptySumHajmAndCount();
+            IsCleanNomad = false;
         }
     }
 }
@@ -157,6 +165,10 @@ public partial class NomadAction
 /// </summary>
 public partial class NomadAction
 {
+    public bool ISChangeFormols { get; set; }
+    public bool IsCleanNomad { get; set; }
+
+    
     private async Task GetEventCallbackOnChangeDate(ClosingPriceDaily closingPriceDaily)
     {
         if (closingPriceDaily == null)
@@ -168,8 +180,10 @@ public partial class NomadAction
         }
         else
         {
+            ISChangeFormols = true;
             NomadDate = closingPriceDaily.dEven;
             await ReoladGrid();
+            ISChangeFormols = false;
         }
     }
 }
@@ -179,15 +193,12 @@ public partial class NomadAction
 /// </summary>
 public partial class NomadAction
 {
-
     //==========Fileds========================//
-
     private InputTagOptions InputTagOptions { get; set; } = new();
 
     private List<string> HajmsTags { get; set; } = new();
 
     //==========Methods========================//
-
     private async Task SaveHajm(string tag)
     {
         var hajmModels = new List<Hajm>();
@@ -242,16 +253,13 @@ public partial class NomadAction
 public partial class NomadAction
 {
     //==========Fileds========================//
-
     private Collapse collapse1 = default!;
 
     private List<Hajm> Hajms = new List<Hajm>();
     private string SumHajm { get; set; } = string.Empty;
     private string SumCount { get; set; } = string.Empty;
 
-
     //==========Methods========================//
-
     private async Task ToggleContentAsync() => await collapse1.ToggleAsync();
 
     private async Task GetFillHajms()

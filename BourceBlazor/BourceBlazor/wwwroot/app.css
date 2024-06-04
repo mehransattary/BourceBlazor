@@ -143,6 +143,16 @@ h1:focus {
 .autocomplete-list {  
     transform: translate(0px, 41px)!important;
 }
+
+.mySwitch {
+    margin-left: -21px !important;
+    height: 22px !important;
+    width: 55px !important;
+}
+
+.table-responsive{
+    height:100vh;
+}
 @media (max-width: 641px) {
     .menuButton {
         display: none;

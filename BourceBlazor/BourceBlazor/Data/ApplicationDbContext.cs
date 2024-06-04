@@ -10,5 +10,8 @@ namespace BourceBlazor.Data
         public DbSet<NomadDate> NomadDates { get; set; }
         public DbSet<NomadAction> NomadActions { get; set; }
         public DbSet<AppShared.Entities.Hajm> Hajm { get; set; } = default!;
+        public DbSet<Formol> Formols { get; set; } = default!;
+
+        
     }
 }

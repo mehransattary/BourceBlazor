@@ -1,5 +1,6 @@
 ﻿using AppShared.Entities;
 using AppShared.Helper;
+using AppShared.ViewModel;
 using AppShared.ViewModel.Nomad.Instrument;
 using BlazorBootstrap;
 using BlazorInputTags;
@@ -15,7 +16,7 @@ public partial class HajmFilter
 {
     //=========Fields==========================//
 
-    Grid<HajmViewModel> gridHajm = default!;
+    private Grid<HajmViewModel> gridHajm = default!;
 
     private bool IsLoad { get; set; } = true;
 
@@ -49,10 +50,10 @@ public partial class HajmFilter
         {
             var resultApi = await httpClient.GetFromJsonAsync<IEnumerable<Hajm>>("/api/Hajms");
 
-            var result = resultApi.GroupBy(x => x.Name).Select(x => new HajmViewModel()
+            var result = resultApi.GroupBy(x => x.Code).Select(x => new HajmViewModel()
             {
               
-                HajmName = x.Key,
+                HajmName = x.FirstOrDefault().Name,
                 Hajms = x.Select(a=>new Hajm()
                 {                  
                     HajmValue =a.HajmValue,
@@ -88,67 +89,13 @@ public partial class HajmFilter
 { 
     //=========Fields==========================//
     private List<string> Tags { get; set; } = new();
-
     private InputTagOptions InputTagOptions { get; set; } = new();
 
-    private IEnumerable<InstrumentSearch> instrumentSearches = default!;
-
     private AutoComplete<InstrumentSearch> InstrumentSearchAuto = default!;
-
-    private string searchNomadName { get; set; }
-
-    private string searchNomadInsCode { get; set; }
-
+    private string searchNomadName { get; set; } = string.Empty;
+    private string searchNomadInsCode { get; set; } = string.Empty;
 
     //==========Methods=========================//
-    private async Task<AutoCompleteDataProviderResult<InstrumentSearch>> GetNomadProvider(AutoCompleteDataProviderRequest<InstrumentSearch> request)
-    {
-        var value = InstrumentSearchAuto.Value;
-        value = value.FixPersianChars();
-        InstrumentSearchAuto.Value = value;
-        instrumentSearches = await GetNomadData(value);   
-        return request.ApplyTo(instrumentSearches);
-    }
- 
-    private async Task<IEnumerable<InstrumentSearch>> GetNomadData(string search)
-    {
-        search = (string.IsNullOrEmpty(search)) ? "خودرو" : search;
-
-        if (string.IsNullOrEmpty(search))
-        {
-            return new List<InstrumentSearch>();
-        }
-
-        var urlSearch = configuration["Urls:UrlSearch"];
-
-        try
-        {       
-
-            var response = await httpClient.GetFromJsonAsync<RootInstrument>(urlSearch + search);
-
-            if (response != null && response.instrumentSearch.Any())
-            {
-                instrumentSearches = response.instrumentSearch.Select((item, index) => new InstrumentSearch
-                {
-                    Counter = ++index,
-                    //نام کامل
-                    lVal30 = item.lVal18AFC + " - " + item.lVal30,
-                    //نام اختصار
-                    lVal18AFC = item.lVal18AFC,
-                    insCode = item.insCode,
-                }).ToList();
-
-                return instrumentSearches;
-            }
-
-            return new List<InstrumentSearch>();
-        }
-        catch (Exception)
-        {
-            return new List<InstrumentSearch>();
-        }
-    }
-
     private async Task SaveHajm()
     {
         var hajmModels = new List<Hajm>();
@@ -181,7 +128,6 @@ public partial class HajmFilter
 
     private async Task ReloadHajm()
     {
-        await localStorage.RemoveItemAsync("cachedHajms");
         hajms = await GetData();
         await gridHajm.RefreshDataAsync();
         searchNomadName = string.Empty;
@@ -189,17 +135,11 @@ public partial class HajmFilter
         StateHasChanged();
     }
 
-    private void OnAutoCompleteChanged(InstrumentSearch instrumentSearch)
+    private void GetEventCallbackInstrumentSearch(InstrumentSearch instrumentSearch)
     {
         searchNomadInsCode = instrumentSearch.insCode;
     }
 
 }
 
-public class HajmViewModel
-{
-    public int Counter { get; set; }
-    public string HajmName { get; set; }
 
-    public List<Hajm> Hajms { get; set; } = new();
-}

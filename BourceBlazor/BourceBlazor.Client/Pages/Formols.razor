@@ -1,0 +1,88 @@
+﻿@page "/Formols"
+@rendermode InteractiveWebAssembly
+@attribute [Authorize]
+
+<PageTitle>
+    فرمول های نماد
+</PageTitle>
+
+<div class="row">
+    <div class="col-6">
+        <h4>
+            فرمول های نماد
+        </h4>
+    </div>
+
+    <div class="col-6" style="text-align:end">
+    </div>
+
+</div>
+
+@if (IsLoad)
+{
+    <div class="text-center loader">
+        <Spinner Type="SpinnerType.Dots" Class="me-3" Color="SpinnerColor.Primary" Size="SpinnerSize.Large" />
+    </div>
+}
+<EditForm Model="Model" OnValidSubmit="SaveFormol" FormName="formols">
+    <div class="row mt-2">
+
+            <div class="col-md-4 col-6">
+            <label class="form-label">نماد</label>
+                <SearchNomad EventCallbackInstrumentSearch="GetEventCallbackInstrumentSearch" />
+            </div>
+
+            <div class="col-md-3 col-6">
+            <label class="form-label">زمان</label>
+            <InputNumber class="form-control" placeholder="زمان بر اساس ثانیه " @bind-Value="Model!.TimeFormol" />
+            </div>
+
+            <div class="col-md-3 col-6">
+            <label class="form-label">حجم</label>
+                <InputNumber class="form-control" placeholder="حجم " @bind-Value="Model!.HajmFormol" />
+            </div>
+
+            <div class="col-md-2 col-6 mt-4">
+
+                <Button Type="ButtonType.Submit" Color="ButtonColor.Success" > ذخیره  </Button>
+            </div>
+    </div>
+</EditForm>
+
+
+<Grid @ref="gridFormol"
+      TItem="FormolViewModel"
+      Data="formols"
+      Class="table table-hover table-bordered table-striped mt-3"
+      DataProvider="GetDataProvider"
+      AllowFiltering="true"
+      AllowSorting="true"
+      Responsive="true"
+      AllowPaging="false"
+      EmptyText="اطلاعاتی وجود ندارد">
+
+
+    <GridColumn TItem="FormolViewModel" HeaderText=" نماد" PropertyName="HajmName" SortKeySelector="item => item.NomadName">
+        @context.NomadName
+    </GridColumn>
+
+    <GridColumn TItem="FormolViewModel" HeaderText="زمان و حجم" PropertyName="Formols">
+        @foreach (var item in @context.Formols)
+        {
+            <Button Color="ButtonColor.Secondary" Class="me-2 mt-2" Outline="true">
+
+                <Icon Name="IconName.TrashFill" @onclick="()=>DeleteHajm(item.Id)" />
+
+                <Badge Color="BadgeColor.Primary" Class="p-2 " IndicatorType="BadgeIndicatorType.None" >
+                    حجم : @item.HajmFormol.ToString("#,0")
+                </Badge>
+
+                <Badge Color="BadgeColor.Danger" Class="p-2 " IndicatorType="BadgeIndicatorType.None" >
+                    زمان : @item.TimeFormol ثانیه 
+                </Badge>
+                
+            </Button>
+        }
+    </GridColumn>
+
+</Grid>

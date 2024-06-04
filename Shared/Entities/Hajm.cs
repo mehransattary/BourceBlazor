@@ -1,8 +1,4 @@
-﻿
-
-using System.ComponentModel.DataAnnotations;
-
-namespace AppShared.Entities;
+﻿namespace AppShared.Entities;
 
 public class Hajm : BourceBase
 {
