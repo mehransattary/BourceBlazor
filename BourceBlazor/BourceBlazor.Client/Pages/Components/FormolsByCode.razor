@@ -4,15 +4,18 @@
         <hr />
         @foreach (var item in FormolSwitches)
         {
-            <div class="col-md-4 col-6 mt-2">
+            <div class="col-md-6 col-6 mt-2">
 
 
                 <div class="form-check form-switch text-end">
                     <Button Type="ButtonType.Button" @onclick="()=> AddToFormolSwitchViewModel(item)" Color="ButtonColor.Success"
                             Position="Position.Relative" Outline="@(item.Checked?false:true)">
 
-                        حجم : @item.Formol.HajmFormol.ToString("#,0") ,  زمان : @item.Formol.TimeFormol ثانیه
-
+                         حجم : @item.Formol.HajmFormol.ToString("#,0") ,
+                         زمان : @item.Formol.TimeFormol ثانیه   ,
+                         @item.Formol.MultiStage مرحله ای    ,   
+                         @(item.Formol.CalculationPrice ? " با قیمت" : "بدون قیمت")                
+                                      
                         @if (item.Checked)
                         {
                             <Badge Color="BadgeColor.Danger"
@@ -23,6 +26,7 @@
                                 @item.Counter
                             </Badge>
                         }
+
                     </Button>
 
                 </div>

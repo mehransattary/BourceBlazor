@@ -27,25 +27,35 @@
 <EditForm Model="Model" OnValidSubmit="SaveFormol" FormName="formols">
     <div class="row mt-2">
 
-            <div class="col-md-4 col-6">
+        <div class="col-md-3 col-6">
             <label class="form-label">نماد</label>
-                <SearchNomad EventCallbackInstrumentSearch="GetEventCallbackInstrumentSearch" />
-            </div>
+            <SearchNomad EventCallbackInstrumentSearch="GetEventCallbackInstrumentSearch" />
+        </div>
 
-            <div class="col-md-3 col-6">
+        <div class="col-md-2 col-6">
             <label class="form-label">زمان</label>
             <InputNumber class="form-control" placeholder="زمان بر اساس ثانیه " @bind-Value="Model!.TimeFormol" />
-            </div>
+        </div>
 
-            <div class="col-md-3 col-6">
+        <div class="col-md-2 col-6">
             <label class="form-label">حجم</label>
-                <InputNumber class="form-control" placeholder="حجم " @bind-Value="Model!.HajmFormol" />
-            </div>
+            <InputNumber class="form-control" placeholder="حجم " @bind-Value="Model!.HajmFormol" />
+        </div>
 
-            <div class="col-md-2 col-6 mt-4">
 
-                <Button Type="ButtonType.Submit" Color="ButtonColor.Success" > ذخیره  </Button>
-            </div>
+        <div class="col-md-2 col-6">
+            <label class="form-label">چند مرحله ای</label>
+            <InputNumber class="form-control" placeholder="مراحل " @bind-Value="Model!.MultiStage" />
+        </div>
+
+        <div class="col-md-2 col-6">
+            <label class="form-label"> محاسبه با قیمت </label>
+            <Switch @bind-Value="Model.CalculationPrice"  Style="font-size: 28px;" />
+        </div>
+
+        <div class="col-md-1 col-6 mt-4">
+            <Button Type="ButtonType.Submit" Color="ButtonColor.Success"> ذخیره  </Button>
+        </div>
     </div>
 </EditForm>
 
@@ -73,14 +83,22 @@
 
                 <Icon Name="IconName.TrashFill" @onclick="()=>DeleteHajm(item.Id)" />
 
-                <Badge Color="BadgeColor.Primary" Class="p-2 " IndicatorType="BadgeIndicatorType.None" >
+                <Badge Color="BadgeColor.Primary" Class="p-2 " IndicatorType="BadgeIndicatorType.None">
                     حجم : @item.HajmFormol.ToString("#,0")
                 </Badge>
 
-                <Badge Color="BadgeColor.Danger" Class="p-2 " IndicatorType="BadgeIndicatorType.None" >
-                    زمان : @item.TimeFormol ثانیه 
+                <Badge Color="BadgeColor.Danger" Class="p-2 " IndicatorType="BadgeIndicatorType.None">
+                    زمان : @item.TimeFormol ثانیه
                 </Badge>
-                
+
+                <Badge Color="BadgeColor.Secondary" Class="p-2 " IndicatorType="BadgeIndicatorType.None">
+                    @item.MultiStage مرحله ای
+                </Badge>
+
+                <Badge Color="(item.CalculationPrice ?BadgeColor.Success: BadgeColor.Light)" Class="p-2 " IndicatorType="BadgeIndicatorType.None">
+                    @(item.CalculationPrice ? " با قیمت" : "بدون قیمت")
+                </Badge>
+
             </Button>
         }
     </GridColumn>

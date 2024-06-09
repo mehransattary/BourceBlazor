@@ -17,12 +17,11 @@ public partial class FormolsByCode
     [Parameter]
     public bool IsCleanNomad { get; set; } = false;
 
+    [Parameter]
+    public IEnumerable<TradeHistory>? TradeHistories { get; set; }
 
     [Parameter]
-    public IEnumerable<TradeHistory>? TradeHistories { get; set; } 
-
-    [Parameter]
-    public EventCallback< List<FormolSwitchViewModel>> EventCallbackSelectedFormolSwitches { get; set; }
+    public EventCallback<List<FormolSwitchViewModel>> EventCallbackSelectedFormolSwitches { get; set; }
 
 
     private IEnumerable<Formol> Formols = new List<Formol>();
@@ -30,6 +29,11 @@ public partial class FormolsByCode
     private List<FormolSwitchViewModel> FormolSwitches { get; set; } = new();
 
     private int SelectedFormolCounter = 0;
+
+    private int MainHajm = 0;
+
+    private int MainTime = 0;
+
 
     protected override void OnInitialized()
     {
@@ -42,11 +46,11 @@ public partial class FormolsByCode
         if (!string.IsNullOrEmpty(InsCode) && !Formols.Any() && !FormolSwitches.Any() && ISChangeFormols)
             await GetFormols();
 
-        if(IsCleanNomad)
+        if (IsCleanNomad)
         {
             Formols = new List<Formol>();
             FormolSwitches.Clear();
-        }        
+        }
     }
 
     private async Task GetFormols()
@@ -75,16 +79,20 @@ public partial class FormolsByCode
     private void AddToFormolSwitchViewModel(FormolSwitchViewModel formolSwitch)
     {
         if (!formolSwitch.Checked)
+        {
             SetActiveFormol(formolSwitch);
-
+            SetFormolOnData(formolSwitch);
+        }
         else
+        {
             SetDisableFormole(formolSwitch);
+        }
 
         SetOrderFormolSwitches();
 
         SetEventCallbackSelectedFormolSwitches();
 
-        StateHasChanged();       
+        StateHasChanged();
     }
 
     private void SetOrderFormolSwitches()
@@ -138,5 +146,46 @@ public partial class FormolsByCode
         formolSwitch.AfterTradeHistories.AddRange(TradeHistories);
 
         SelectedFormolCounter += 1;
+    }
+
+    private void SetFormolOnData(FormolSwitchViewModel formolSwitch)
+    {
+        var TradeHistoriesList = TradeHistories.ToList();
+
+        var firstItem = TradeHistoriesList.OrderBy(_ => _.nTran).FirstOrDefault();
+
+        if (firstItem == null)
+            return;
+
+        MainHajm = firstItem.qTitTran;
+        MainTime = firstItem.hEven + formolSwitch.Formol.TimeFormol;
+
+        var listSelected = new List<TradeHistory>();
+
+        listSelected.Add(firstItem);
+
+        var TradeHistoriesListFormoly = TradeHistoriesList.Where(t => t.hEven <= MainTime).ToList();
+
+        foreach (var tradeHistorie in TradeHistoriesListFormoly)
+        {
+            if(tradeHistorie.Counter!= firstItem.Counter)
+            {
+                listSelected.Add(tradeHistorie);
+
+                var validation = (tradeHistorie.qTitTran + MainHajm) > formolSwitch.Formol.HajmFormol;
+
+                MainHajm += tradeHistorie.qTitTran;
+
+                if (validation)
+                {
+                    listSelected.ForEach(x =>
+                    {
+                        TradeHistoriesList.Remove(x);
+                    });
+                }
+            }
+        }
+
+        TradeHistories = TradeHistoriesList;
     }
 }

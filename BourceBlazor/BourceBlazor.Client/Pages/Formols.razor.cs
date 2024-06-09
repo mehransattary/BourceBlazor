@@ -59,7 +59,9 @@ public partial class Formols
                 {
                     HajmFormol = a.HajmFormol,
                     TimeFormol = a.TimeFormol,
-                    Id = a.Id
+                    Id = a.Id,
+                    MultiStage =a.MultiStage,
+                    CalculationPrice =a.CalculationPrice
 
                 }).ToList()
             });
@@ -99,7 +101,11 @@ public partial class Formols
     //==========Methods=========================//
     private async Task SaveFormol()
     {
-        var validation = Model != null && !string.IsNullOrEmpty(searchNomadName) && Model.TimeFormol != 0 && Model.HajmFormol != 0;
+        var validation = Model != null &&
+            !string.IsNullOrEmpty(searchNomadName) && 
+            Model.TimeFormol != 0 &&
+            Model.HajmFormol != 0 &&
+            Model.MultiStage!=0;
 
         if (validation)
         {
@@ -109,6 +115,8 @@ public partial class Formols
                 Code = searchNomadInsCode,
                 HajmFormol =Model!.HajmFormol,
                 TimeFormol =Model!.TimeFormol,
+                MultiStage =Model!.MultiStage,
+                CalculationPrice = Model!.CalculationPrice
             };
 
             await httpClient.PostAsJsonAsync<Formol>("/api/formols", model);
@@ -123,6 +131,8 @@ public partial class Formols
         await gridFormol.RefreshDataAsync();
         Model.TimeFormol = (int)decimal.Zero;
         Model.HajmFormol = (int)decimal.Zero;
+        Model.MultiStage = (int)decimal.Zero;
+        Model.CalculationPrice = false;
         StateHasChanged();
     }
 
