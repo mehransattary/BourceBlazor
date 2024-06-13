@@ -50,6 +50,7 @@ public partial class FormolsByCode
         {
             Formols = new List<Formol>();
             FormolSwitches.Clear();
+            SelectedFormolCounter = 0;
         }
     }
 
@@ -120,7 +121,7 @@ public partial class FormolsByCode
         formolSwitch.BeforeTradeHistories = new();
         formolSwitch.AfterTradeHistories = new();
 
-        SelectedFormolCounter -= 1;
+        SelectedFormolCounter =0;
 
         void UpdateCounterShift()
         {
