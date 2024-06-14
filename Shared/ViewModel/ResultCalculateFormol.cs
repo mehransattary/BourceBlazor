@@ -1,9 +1,5 @@
 ﻿using AppShared.ViewModel.Nomad.Actions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace AppShared.ViewModel
 {
@@ -12,7 +8,7 @@ namespace AppShared.ViewModel
         public List<TradeHistory> MainRealBaseTradeHistories = new();
 
 
-        public List<TradeHistory> TradeHistories = new();
+        public List<TradeHistory> DeletedTradeHistories = new();
 
         public List<FormolSwitchViewModel> SeletedFormolSwitches { get; set; } 
 

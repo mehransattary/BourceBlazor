@@ -19,6 +19,8 @@ namespace BourceBlazor.Client.Pages;
 /// </summary>
 public partial class NomadAction
 {
+    #region Parameter
+
     //==========Parameter========================//
 
     [Parameter]
@@ -30,18 +32,25 @@ public partial class NomadAction
     [Parameter]
     public int NomadDate { get; set; }
 
+    #endregion
+
+    #region Fileds
+
     //==========Fileds========================//
 
     private string Title { get; set; } = string.Empty;
+
 
     private Grid<TradeHistory> grid = default!;
 
     public bool IsLoad { get; set; } = true;
 
+
     private IEnumerable<TradeHistory> TradeHistories = default!;
 
-    private List<TradeHistory> TradeHistoriesList = new();
+    #endregion
 
+    #region Methods   
 
     //==========Methods========================//
 
@@ -72,16 +81,15 @@ public partial class NomadAction
     }
 
     private async Task<IEnumerable<TradeHistory>> GetDataGrid()
-    {
-        var urlAction = configuration["Urls:UrlAction"];
-
+    { 
         try
         {
-            var response = await httpClient.GetFromJsonAsync<Root>(urlAction + InsCode + "/" + NomadDate + "/false");
+            var response = await httpClient.GetFromJsonAsync<List<TradeHistory>>("/api/TradeHistory/" + InsCode + "/" + NomadDate );
 
-            if (response != null && response.tradeHistory.Any())
+            if (response != null && response.Any())
             {
-                await GetTradeHistoriesAndSumHajmCount(response.tradeHistory);
+                TradeHistories = response;
+                await GetTradeHistoriesAndSumHajmCount();
                 return TradeHistories;
             }
 
@@ -93,38 +101,11 @@ public partial class NomadAction
         }
     }
 
-    private async Task GetTradeHistoriesAndSumHajmCount(List<TradeHistory> tradeHistory)
+    private async Task GetTradeHistoriesAndSumHajmCount()
     {
         await GetFillHajms();
-
-        GetTradeHistories(tradeHistory);
-
         SetSumHajmAndCount();
-
         StateHasChanged();
-    }
-
-    private void GetTradeHistories(List<TradeHistory> tradeHistory)
-    {
-        TradeHistories = tradeHistory
-                          .Where(x => x.canceled == 0)
-                          .DistinctBy(x => new { x.nTran, x.qTitTran, x.hEven })
-                          .Select((item, index) => new TradeHistory
-                          {
-                              //ردیف
-                              nTran = item.nTran,
-                              //زمان
-                              hEven = item.hEven,
-                              //حجم
-                              qTitTran = item.qTitTran,
-                              //قیمت
-                              pTran = item.pTran,
-
-                              canceled = item.canceled
-                          })
-                          .OrderBy(_ => _.nTran).ToList();
-
-        TradeHistoriesList = TradeHistories.ToList();
     }
 
     private List<FormolSwitchViewModel> SeletedFormolSwitches { get; set; } = new();
@@ -134,6 +115,7 @@ public partial class NomadAction
         SeletedFormolSwitches = formolSwitches;
     }
 
+    #endregion
 }
 
 /// <summary>
@@ -145,21 +127,9 @@ public partial class NomadAction
     private List<TradeHistory> MainRealBaseTradeHistories = new();
 
     //ردیف های پایه
-    private List<TradeHistory> BaseTradeHistories = new();
+    private List<TradeHistory> BaseTradeHistories = new();  
 
-    //مقادیر  ردیف پایه
-    private BaseTradeHistoriesViewModel BaseTradeHistoriesViewModel { get; set; } = new();
-
-    //فرمول
-    private FormolSwitchViewModel formol = new();
-
-    //مرحله جاری
-    private int CurrentMultiStage = 1;
-
-    //اتمام مرحله
-    private bool Restart = true;
-
-    private async Task GetFilterByFormolAll1()
+    private async Task GetFilterByFormol(bool isDataRemoved)
     {
         await EnableLoadGrid();
 
@@ -167,25 +137,25 @@ public partial class NomadAction
 
         var model = new FormolSendAction
         {
-              CalculationPrice = _formol.CalculationPrice,
-              NomadDate= NomadDate,
-              InsCode = InsCode ,
-              HajmFormol = _formol.HajmFormol,
-              MultiStage = _formol.MultiStage,
-              TimeFormol = _formol.TimeFormol
+            CalculationPrice = _formol.CalculationPrice,
+            NomadDate = NomadDate,
+            InsCode = InsCode,
+            HajmFormol = _formol.HajmFormol,
+            MultiStage = _formol.MultiStage,
+            TimeFormol = _formol.TimeFormol,
+            IsDataRemoved = isDataRemoved,
         };
 
         var response = await httpClient.PostAsJsonAsync($"/GetCalculateFormols", model);
 
         if (response.IsSuccessStatusCode)
         {
-            var responseContent =await response.Content.ReadFromJsonAsync<List<TradeHistory>>();
+            var responseContent = await response.Content.ReadFromJsonAsync<List<TradeHistory>>();
 
             TradeHistories = responseContent;
             SumHajm = TradeHistories.Select(x => x.qTitTran).Sum().ToString("#,0");
             SumCount = TradeHistories.Select(x => x.nTran).Count().ToString("#,0");
             await grid.RefreshDataAsync();
-
             await DisableLoadGrid();
 
         }
@@ -193,385 +163,10 @@ public partial class NomadAction
         {
             Console.WriteLine("Error: " + response.StatusCode);
         }
-    }
-    //محاسبه فرمول اصلی
-    private async Task GetFilterByFormolAll()
-    {
-        Restart = true;
 
-        await EnableLoadGrid();
-
-        var _formol = SeletedFormolSwitches.FirstOrDefault();
-
-        if (_formol != null)
-            formol = _formol;
-
-        while (Restart)
-        {
-            BaseTradeHistories.Clear();
-
-            if (TradeHistoriesList.Count <= CurrentMultiStage)
-            {
-                CurrentMultiStage = 1;
-                TradeHistoriesList.Clear();
-                TradeHistories = MainRealBaseTradeHistories.AsEnumerable();
-                await grid.RefreshDataAsync();
-                SumHajm = TradeHistories.Select(x => x.qTitTran).Sum().ToString("#,0");
-                SumCount = TradeHistories.Select(x => x.nTran).Count().ToString("#,0");
-                Restart = false;
-                await DisableLoadGrid();
-                return;
-            }
-
-            var result = TradeHistoriesList
-                   .Skip(0)
-                   .Take(CurrentMultiStage)
-                   .ToList();
-
-            BaseTradeHistories.AddRange(result);
-
-            if (CurrentMultiStage == 1)
-            {
-                var firstTradeHistories = BaseTradeHistories.FirstOrDefault();
-
-                if (firstTradeHistories == null)
-                {
-                    await Console.Out.WriteLineAsync("firstTradeHistories is null");
-                    return;
-                }
-
-                BaseTradeHistoriesViewModel.BasePrice = firstTradeHistories.pTran;
-                BaseTradeHistoriesViewModel.BaseHajm = firstTradeHistories.qTitTran;
-                BaseTradeHistoriesViewModel.BaseTime = firstTradeHistories.hEven;
-                BaseTradeHistoriesViewModel.BaseEndTime = firstTradeHistories.hEven + formol.Formol.TimeFormol;
-            }
-            else if (CurrentMultiStage > 1)
-            {
-                var firstTradeHistories = BaseTradeHistories.Skip(0).Take(1).FirstOrDefault();
-
-                if (firstTradeHistories == null)
-                {
-                    await Console.Out.WriteLineAsync("firstTradeHistories is null");
-                    return;
-                }
-
-                BaseTradeHistoriesViewModel.BasePrice = firstTradeHistories.pTran;
-                BaseTradeHistoriesViewModel.BaseTime = firstTradeHistories.hEven;
-                BaseTradeHistoriesViewModel.BaseEndTime = firstTradeHistories.hEven + formol.Formol.TimeFormol;
-                BaseTradeHistoriesViewModel.BaseHajm = BaseTradeHistories.Sum(b => b.qTitTran);
-            }
-
-            //محاسبه خود ردیف پایه با فرمول
-            if (BaseTradeHistoriesViewModel.BaseHajm == formol.Formol.HajmFormol)
-            {
-                BaseTradeHistories.ForEach(item => TradeHistoriesList.Remove(item));
-
-                //ریست کن مراحل        
-                //تنظیم ردیف پایه جدید
-                CurrentMultiStage = 1;
-
-                continue;
-            }
-
-            var calculateTradeHistories = TradeHistoriesList
-                                         .Skip(CurrentMultiStage)
-                                         .Where(x => x.hEven <= BaseTradeHistoriesViewModel.BaseEndTime)
-                                         .ToList();
-
-            if (calculateTradeHistories.Count < BaseTradeHistories.Count)
-            {
-                //اولین ردیف از پایه هارا حذف کن
-                var first = BaseTradeHistories.FirstOrDefault();
-
-                if (first != null)
-                {
-                    TradeHistoriesList.Remove(first);
-                    MainRealBaseTradeHistories.Add(first);
-                    CurrentMultiStage = 1;
-                }
-
-                continue;
-            }
-
-            bool isFinshFor = false;
-            foreach (var item in calculateTradeHistories)
-            {
-                if (!isFinshFor)
-                {
-                    var sum = BaseTradeHistoriesViewModel.BaseHajm + item.qTitTran;
-
-                    if (sum == formol.Formol.HajmFormol)
-                    {
-                        BaseTradeHistories.ForEach(b => TradeHistoriesList.Remove(b));
-                        TradeHistoriesList.Remove(item);
-                        CurrentMultiStage = 1;
-                        isFinshFor = true;
-                    }
-                }
-            }
-
-
-            if (isFinshFor)
-            {
-                continue;
-            }
-
-            //مرحله جاری را افزایش بده
-            CurrentMultiStage = CurrentMultiStage + 1;
-
-            var multiStage = formol.Formol.MultiStage;
-
-            // در صورتی که به مرحله آخر رسیده باشید
-            if (multiStage < CurrentMultiStage)
-            {
-                var first = BaseTradeHistories.FirstOrDefault();
-
-                if (first != null)
-                {
-                    TradeHistoriesList.Remove(first);
-                    MainRealBaseTradeHistories.Add(first);
-                    CurrentMultiStage = 1;
-                    continue;
-                }
-            }
-
-            var counTradeHistoriesListt = TradeHistoriesList.Count;
-
-            if (counTradeHistoriesListt == 0 || TradeHistoriesList.Count <= CurrentMultiStage)
-            {
-                CurrentMultiStage = 1;
-                TradeHistoriesList.Clear();
-                TradeHistories = MainRealBaseTradeHistories.AsEnumerable();
-                await grid.RefreshDataAsync();
-                SumHajm = TradeHistories.Select(x => x.qTitTran).Sum().ToString("#,0");
-                SumCount = TradeHistories.Select(x => x.nTran).Count().ToString("#,0");
-                Restart = false;
-                await DisableLoadGrid();
-                return;
-            }
-        }
-    }
-
-
-    //محاسبه فرمول اصلی
-    private void GetFilterByFormol()
-    {
-        SetFormol();
-
-        if (formol == null)
-            return;
-
-        //مرحله اول
-        ResetBase();
-
-        CalculatesWithFormol();
-
-        FinshedWhenEmptyCounTradeHistoriesList();
-    }
-
-    private void SetFormol()
-    {
-        var _formol = SeletedFormolSwitches.FirstOrDefault();
-
-        if (_formol != null)
-            formol = _formol;
-    }
-
-    //============>>
-
-    //مرحله اول
-    public void ResetBase()
-    {
-        //تنظیم ردیف های  پایه
-        SetBaseTradeHistories();
-
-        //تنظیم فرمول های اصلی با ردیف های پایه
-        SetBaseTradeHistoriesViewModel();
-
-        //محاسبه ردیف پایه با فرمول
-        CalculateBaseTradeHistoriesWithFormol();
-    }
-
-    private void SetBaseTradeHistories()
-    {
-        BaseTradeHistories.Clear();
-
-        var result = TradeHistoriesList
-                        .Skip(0)
-                        .Take(CurrentMultiStage)
-                        .ToList();
-
-        BaseTradeHistories.AddRange(result);
-    }
-
-    private void SetBaseTradeHistoriesViewModel()
-    {
-        if (CurrentMultiStage == 1)
-        {
-            var firstTradeHistories = BaseTradeHistories.FirstOrDefault();
-
-            if (firstTradeHistories == null)
-                return;
-
-            BaseTradeHistoriesViewModel.BasePrice = firstTradeHistories.pTran;
-            BaseTradeHistoriesViewModel.BaseHajm = firstTradeHistories.qTitTran;
-            BaseTradeHistoriesViewModel.BaseTime = firstTradeHistories.hEven;
-            BaseTradeHistoriesViewModel.BaseEndTime = firstTradeHistories.hEven + formol.Formol.TimeFormol;
-        }
-        else if (CurrentMultiStage > 1)
-        {
-            var firstTradeHistories = BaseTradeHistories.Skip(0).Take(1).FirstOrDefault();
-
-            if (firstTradeHistories == null)
-                return;
-
-            BaseTradeHistoriesViewModel.BasePrice = firstTradeHistories.pTran;
-            BaseTradeHistoriesViewModel.BaseTime = firstTradeHistories.hEven;
-            BaseTradeHistoriesViewModel.BaseEndTime = firstTradeHistories.hEven + formol.Formol.TimeFormol;
-            BaseTradeHistoriesViewModel.BaseHajm = BaseTradeHistories.Sum(b => b.qTitTran);
-        }
-    }
-
-    private void CalculateBaseTradeHistoriesWithFormol()
-    {
-        //محاسبه خود ردیف پایه با فرمول
-        if (BaseTradeHistoriesViewModel.BaseHajm == formol.Formol.HajmFormol)
-        {
-            BaseTradeHistories.ForEach(item => TradeHistoriesList.Remove(item));
-
-            //ریست کن مراحل        
-            //تنظیم ردیف پایه جدید
-            CurrentMultiStage = 1;
-            //............ 
-            GetFilterByFormol();
-        }
-    }
-
-    //============>>
-
-    public void CalculatesWithFormol()
-    {
-        //محاسبه 
-        var calculateTradeHistories = CalculateBaseTradeHistoriesWhenBiggercalculateTradeHistories();
-
-        if (!calculateTradeHistories.Any())
-        {
-            GetFilterByFormol();
-            return;
-        }
-
-        //محاسبه اصلی ردیف های پایه با ردیف های دیگر طبق شرط زمانبندی
-        MainCalculateTradeHistories(calculateTradeHistories);
-
-        PlusCurrentMultiStage();
-
-        CheckMultiStageWithCurrentMultiStage();
-    }
-
-
-    /// <summary>
-    /// معالات رابر اساس مرحله جاری و پایان زمان بیار
-    /// </summary>
-    /// <returns></returns>
-    private List<TradeHistory> CalculateBaseTradeHistoriesWhenBiggercalculateTradeHistories()
-    {
-        var calculateTradeHistories = TradeHistoriesList
-                                      .Skip(CurrentMultiStage)
-                                      .Where(x => x.hEven <= BaseTradeHistoriesViewModel.BaseEndTime)
-                                      .ToList();
-
-        if (calculateTradeHistories.Count < BaseTradeHistories.Count)
-        {
-            //اولین ردیف از پایه هارا حذف کن
-            var first = BaseTradeHistories.FirstOrDefault();
-
-            if (first != null)
-            {
-                TradeHistoriesList.Remove(first);
-                MainRealBaseTradeHistories.Add(first);
-                CurrentMultiStage = 1;
-            }
-
-            return new List<TradeHistory>();
-        }
-        else
-        {
-            return calculateTradeHistories;
-        }
-    }
-
-    private void MainCalculateTradeHistories(List<TradeHistory> calculateTradeHistories)
-    {
-        foreach (var item in calculateTradeHistories)
-        {
-            var sum = BaseTradeHistoriesViewModel.BaseHajm + item.qTitTran;
-
-            if (sum == formol.Formol.HajmFormol)
-            {
-                BaseTradeHistories.ForEach(b => TradeHistoriesList.Remove(b));
-                TradeHistoriesList.Remove(item);
-                CurrentMultiStage = 1;
-                GetFilterByFormol();
-
-                break;
-            }
-        }
-    }
-
-    private void PlusCurrentMultiStage()
-    {
-        //مرحله جاری را افزایش بده
-        CurrentMultiStage = CurrentMultiStage + 1;
-    }
-
-    private void CheckMultiStageWithCurrentMultiStage()
-    {
-        var multiStage = formol.Formol.MultiStage;
-
-        //برسی کن ببین به مرحله آخر رسیدی یا نه اگر رسیدی از اول ریست کن
-        if (multiStage < CurrentMultiStage)
-        {
-            //اولین ردیف از پایه هارا حذف کن
-            var first = BaseTradeHistories.FirstOrDefault();
-
-            if (first != null)
-            {
-                TradeHistoriesList.Remove(first);
-                MainRealBaseTradeHistories.Add(first);
-            }
-
-            CurrentMultiStage = 1;
-
-            //............
-            GetFilterByFormol();
-
-        }
-    }
-
-    //============>>
-
-    public void FinshedWhenEmptyCounTradeHistoriesList()
-    {
-        var counTradeHistoriesListt = TradeHistoriesList.Count;
-
-        if (counTradeHistoriesListt == 0)
-        {
-            CurrentMultiStage = 1;
-            Restart = true;
-            TradeHistoriesList.Clear();
-            TradeHistories = MainRealBaseTradeHistories.AsEnumerable();
-            grid.RefreshDataAsync();
-            SetSumHajmAndCount();
-        }
-        else
-        {
-            GetFilterByFormol();
-        }
-    }
+    }  
 
 }
-
-
 
 /// <summary>
 /// جستجوی نماد
@@ -580,7 +175,6 @@ public partial class NomadAction
 {
     private async Task GetEventCallbackInstrumentSearch(InstrumentSearch instrumentSearch)
     {
-
         if (instrumentSearch != null)
         {
             InsCode = instrumentSearch!.insCode!;

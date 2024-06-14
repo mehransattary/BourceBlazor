@@ -83,7 +83,7 @@
 
                     </div>
 
-                    <div class="row mt-2 ">
+                    <div class="row mt-3 ">
                         <FormolsByCode IsCleanNomad="IsCleanNomad"
                                        ISChangeFormols="ISChangeFormols"
                                        InsCode="@InsCode" 
@@ -91,10 +91,19 @@
                                        EventCallbackSelectedFormolSwitches="GetEventCallbackSelectedFormolSwitches" />
 
                         <!--اعمال-->
-                        <div class="col-2" style="text-align:start">
-                            <Button Outline="true" Color="ButtonColor.Success" @onclick="GetFilterByFormolAll1">
-                                <Icon Name="IconName.Activity" /> 
+                        <div class="col-12 mt-3" style="text-align:start">
+                            <Button Outline="true" Color="ButtonColor.Success" @onclick="()=>GetFilterByFormol(false)">
+                                محاسبه
+                                 معاملات واقعی
                              </Button>
+                        </div>
+
+                        <!--اعمال-->
+                        <div class="col-12 mt-3" style="text-align:start">
+                            <Button Outline="true" Color="ButtonColor.Danger" @onclick="()=>GetFilterByFormol(true)">
+                                محاسبه  
+                                معاملات حذف شده
+                            </Button>
                         </div>
                     </div>
 

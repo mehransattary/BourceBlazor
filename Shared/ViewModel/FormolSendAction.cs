@@ -19,5 +19,7 @@ namespace AppShared.ViewModel
 
         public int NomadDate { get; set; }
 
+        public bool IsDataRemoved { get; set; }
+
     }
 }

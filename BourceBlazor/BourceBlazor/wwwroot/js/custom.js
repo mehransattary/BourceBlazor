@@ -5,6 +5,7 @@ function ShowMenu() {
 
     if (this.IsSHowMenu == true) {
         document.querySelector('.sidebar').style.display = 'none';
+
         this.IsSHowMenu = false;
     }
     else {
@@ -16,7 +17,9 @@ function ShowMenu() {
 
 function SetOpacity_3() {
     document.querySelector('.gridNomadActions').classList.add("opacity_3");
+    document.querySelector('.gridNomadActions').classList.remove("opacity1");
 }
 function SetOpacityFull() {
     document.querySelector('.gridNomadActions').classList.add("opacity1");
+    document.querySelector('.gridNomadActions').classList.remove("opacity_3");
 }
