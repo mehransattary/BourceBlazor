@@ -28,13 +28,31 @@
         <!--بازگشت-->
         <div class="col-md-2 col-12 mt-2" style="text-align:end">
 
-             <Button TooltipTitle="بازگشت به تاریخ ها" Outline="true" Color="ButtonColor.Primary" @onclick=" ()=> GoBackNomadDate()">
-                <Icon Name="IconName.ArrowLeftSquare" /> 
-             </Button>             
+            @{
+                var validationBackNomadDate = !string.IsNullOrEmpty(InsCode) &&
+                                              !string.IsNullOrEmpty(NomadName);
+            }
 
-            <Button TooltipTitle="فرمول ها" Type="ButtonType.Link" Outline="true" Color="ButtonColor.Info" href=@($"Formols/{InsCode}/{NomadDate}/{NomadName}")>
-                <Icon Name="IconName.Box" />
-            </Button>
+            @if (validationBackNomadDate)
+            {
+                <Button  TooltipTitle="بازگشت به تاریخ ها" Outline="true" Color="ButtonColor.Primary" @onclick=" ()=> GoBackNomadDate()">
+                    <Icon Name="IconName.ArrowLeftSquare" />
+                </Button>
+            }
+
+
+            @{
+                var validation = !string.IsNullOrEmpty(InsCode) &&
+                !string.IsNullOrEmpty(NomadName) &&
+                NomadDate != 0;
+            }
+
+            @if (validation)
+            {
+                <Button Class="me-1" TooltipTitle="فرمول ها" Type="ButtonType.Link" Outline="true" Color="ButtonColor.Info" href=@($"Formols/{InsCode}/{NomadDate}/{NomadName}")>
+                    <Icon Name="IconName.Box" />
+                </Button>
+            }
 
         </div>
 

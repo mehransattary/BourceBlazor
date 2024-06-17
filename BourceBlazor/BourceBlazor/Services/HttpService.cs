@@ -44,7 +44,7 @@ public class HttpService: IHttpService
 
                                              })
                                              .OrderBy(_ => _.nTran)
-                                             .Skip(0).Take(5)
+                                             .Skip(45).Take(50)
                                              .ToList();
                                             
             return result;

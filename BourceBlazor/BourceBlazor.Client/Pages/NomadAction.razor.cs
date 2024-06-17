@@ -192,8 +192,9 @@ public partial class NomadAction
         {
             IsCleanNomad = true;
             HajmsTags.Clear();
-            NomadName = string.Empty;
+            NomadName = string.Empty;    
             InsCode = string.Empty;
+            NomadDate = 0;
             TradeHistories = null;
             await grid.RefreshDataAsync();
             SetEmptySumHajmAndCount();

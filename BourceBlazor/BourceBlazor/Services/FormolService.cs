@@ -6,8 +6,8 @@ namespace BourceBlazor.Services;
 
 public class FormolService : IFormolService
 {
-
     #region Fields
+
     //ردیف های حذف شده
     private List<TradeHistory> DeletedTradeHistories = new();
 
@@ -110,7 +110,7 @@ public class FormolService : IFormolService
 
                 var counTradeHistoriesListt = TradeHistoriesList.Count;
 
-                if (counTradeHistoriesListt == 0 || TradeHistoriesList.Count <= CurrentMultiStage)
+                if (counTradeHistoriesListt.Equals(0) || TradeHistoriesList.Count <= CurrentMultiStage)
                 {
                     ResultEnd = SetEndResult();
                     TradeHistoriesList = ResultEnd.MainRealBaseTradeHistories;
@@ -160,22 +160,44 @@ public class FormolService : IFormolService
     /// <param name="TradeHistoriesList"></param>
     private void SetBaseTradeHistories(List<TradeHistory> TradeHistoriesList)
     {
-        var result = TradeHistoriesList
-                      .Skip(0)
-                      .Take(CurrentMultiStage)
-                      .ToList();
+        List<TradeHistory> addBaseTradeHistories = [];
 
-        BaseTradeHistories.AddRange(result);
+        if (CurrentMultiStage > 1)
+        {
+            var firstBase = TradeHistoriesList.OrderBy(x => x.nTran)
+                                              .FirstOrDefault();
+
+            if(firstBase is null)
+            {
+                return;
+            }
+
+            //اگر  قیمت ردیف پایه با قیمت معاملاتی که با این قیمت برابر باشد به ترتیب جمع کن
+            addBaseTradeHistories = TradeHistoriesList.Where(x => x.pTran.Equals(firstBase.pTran))
+                                                      .Skip(0)
+                                                      .Take(CurrentMultiStage)
+                                                      .ToList();
+        }                                           
+        else
+        {
+            addBaseTradeHistories = TradeHistoriesList
+                                    .Skip(0)
+                                    .Take(CurrentMultiStage)
+                                    .ToList();
+        }
+
+        BaseTradeHistories.AddRange(addBaseTradeHistories);
+
     }
 
     /// <summary>
-    ///  تنظیم مقادیر اصلی ردیف پایه
+    ///  تنظیم مقادیر اصلی ردیف پایه اصلی
     /// </summary>
     /// <param name="formol"></param>
     /// <returns></returns>
     private bool SetBaseTradeHistoriesViewModel(FormolSendAction formol)
     {
-        if (CurrentMultiStage == 1)
+        if (CurrentMultiStage.Equals(1))
         {
             var firstTradeHistories = BaseTradeHistories.FirstOrDefault();
 
@@ -193,7 +215,7 @@ public class FormolService : IFormolService
         {
             var firstTradeHistories = BaseTradeHistories.Skip(0).Take(1).FirstOrDefault();
 
-            if (firstTradeHistories == null)
+            if (firstTradeHistories is null)
             {
                 return false;
             }
@@ -215,7 +237,7 @@ public class FormolService : IFormolService
     /// <returns></returns>
     private bool SetBaseTradeHistoriesViewModelWithFormol(FormolSendAction formol, List<TradeHistory> TradeHistoriesList)
     {
-        if (BaseTradeHistoriesViewModel.BaseHajm == formol.HajmFormol)
+        if (BaseTradeHistoriesViewModel.BaseHajm.Equals(formol.HajmFormol))
         {
             BaseTradeHistories.ForEach(item =>
             {
@@ -238,13 +260,17 @@ public class FormolService : IFormolService
     /// <returns></returns>
     private bool GetCalculateTradeHistories(FormolSendAction formol, List<TradeHistory> TradeHistoriesList)
     {
+        //ردیف هایی که باید محاسبه شوند طبق شرایط زمان ومراحل
         var calculateTradeHistories = TradeHistoriesList
                                           .Skip(CurrentMultiStage)
                                           .Where(x => x.hEven <= BaseTradeHistoriesViewModel.BaseEndTime)
                                           .ToList();
 
+        // اگر تعدا ردیف های پایه بزرگتر از تعداد  معاملاتی که قرار است محاسبه شوند
+        //اگر ردیف های پایه مخالف صفر باشند و تعداد معاملات محاسباتی هم صفر باشد 
+        //اگر تعداد معاملات محاسبه شده برابر ردیف های پایه باشد 
         var validation = calculateTradeHistories.Count < BaseTradeHistories.Count ||
-                         (calculateTradeHistories.Count == 0 && BaseTradeHistories.Count != 0) ||
+                         (calculateTradeHistories.Count.Equals(0) && BaseTradeHistories.Count != 0) ||
                          calculateTradeHistories.Count == BaseTradeHistories.Count;
 
         if (validation)
@@ -283,18 +309,36 @@ public class FormolService : IFormolService
             {
                 var sum = BaseTradeHistoriesViewModel.BaseHajm + item.qTitTran;
 
-                if (sum == formol.HajmFormol)
+                //محاسبه بر اساس قیمت
+                if (formol.CalculationPrice)
                 {
-                    BaseTradeHistories.ForEach(b => 
+                    //.اگر قیمت ردیف پایه با قیمت ردیف های دیگر برابر بود مقایسه انجام شود
+                    if (item.pTran.Equals(BaseTradeHistoriesViewModel.BasePrice))
                     {
-                        TradeHistoriesList.Remove(b);
-                        DeletedTradeHistories.Add(b);
-                    });
+                       getCalculate();
+                    }
+                }
+                //محاسبه بر اساس بدون قیمت
+                else
+                {
+                    getCalculate();
+                }
 
-                    TradeHistoriesList.Remove(item);
-                    DeletedTradeHistories.Add(item);
-                    CurrentMultiStage = 1;
-                    isFinshFor = true;
+                void getCalculate()
+                {
+                    if (sum.Equals(formol.HajmFormol))
+                    {
+                        BaseTradeHistories.ForEach(b =>
+                        {
+                            TradeHistoriesList.Remove(b);
+                            DeletedTradeHistories.Add(b);
+                        });
+
+                        TradeHistoriesList.Remove(item);
+                        DeletedTradeHistories.Add(item);
+                        CurrentMultiStage = 1;
+                        isFinshFor = true;
+                    }
                 }
             }
         }

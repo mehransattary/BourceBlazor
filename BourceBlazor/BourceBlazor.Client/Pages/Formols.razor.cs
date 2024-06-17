@@ -109,7 +109,14 @@ public partial class Formols
 
     private void GoBackNomadDate()
     {
-        NavigationManager.NavigateTo($"/NomadAction/{InsCode}/{NomadDate}/{NomadName}");
+        var validation = !string.IsNullOrEmpty(InsCode) &&                        
+                         !string.IsNullOrEmpty(NomadName) &&
+                         NomadDate != 0 ;
+
+        if (validation)
+        {
+            NavigationManager.NavigateTo($"/NomadAction/{InsCode}/{NomadDate}/{NomadName}");
+        }
     }
 
     #endregion

@@ -2,36 +2,44 @@
 {
     <div class="row mt-3 text-end">
 
-      <div class="col-12">
+        <div class="col-12">
 
-        @foreach (var item in FormolSwitches)
-        {
-            <Button Type="ButtonType.Button" @onclick="()=> AddToFormolSwitchViewModel(item)" Color="ButtonColor.Success"
-                    Position="Position.Relative" Class="me-2 mb-1" Outline="@(item.Checked?false:true)">
+            @foreach (var item in FormolSwitches)
+            {
+                <Button Type="ButtonType.Button" @onclick="()=> AddToFormolSwitchViewModel(item)" Color="ButtonColor.Success"
+                        Position="Position.Relative" Class="me-2 mb-1" Outline="@(item.Checked?false:true)">
 
-                    @item.Formol.HajmFormol حجم
-                    ,
-                    @item.Formol.TimeFormol ثانیه
-                    ,
-                    @item.Formol.MultiStage  مرحله ای
-                    ,
-                    @(item.Formol.CalculationPrice ? " با قیمت" : "بدون قیمت")
-
-                @if (item.Checked)
-                {
-                    <Badge Color="BadgeColor.Danger"
-                           Position="Position.Absolute"
-                           Placement="BadgePlacement.TopRight"
-                           IndicatorType="BadgeIndicatorType.RoundedPill"
-                           VisuallyHiddenText="unread messages">
-                        @item.Counter
+                    <Badge Color="BadgeColor.Primary" Class="p-2 " IndicatorType="BadgeIndicatorType.None">
+                        حجم :   @item.Formol.HajmFormol
                     </Badge>
-                }
 
-            </Button>
-        }
+                    <Badge Color="BadgeColor.Danger" Class="p-2 " IndicatorType="BadgeIndicatorType.None">
+                        زمان :@item.Formol.TimeFormol
+                    </Badge>
+
+                    <Badge Color="BadgeColor.Info" Class="p-2 " IndicatorType="BadgeIndicatorType.None">
+                        @item.Formol.MultiStage مرحله ای
+                    </Badge>
+
+                    <Badge Color="(item.Formol.CalculationPrice ?BadgeColor.Warning: BadgeColor.Light)" Class="p-2 " IndicatorType="BadgeIndicatorType.None">
+                        @(item.Formol.CalculationPrice ? " با قیمت" : "بدون قیمت")
+                    </Badge>
+
+                    @if (item.Checked)
+                    {
+                        <Badge Color="BadgeColor.Danger"
+                               Position="Position.Absolute"
+                               Placement="BadgePlacement.TopRight"
+                               IndicatorType="BadgeIndicatorType.RoundedPill"
+                               VisuallyHiddenText="unread messages">
+                            @item.Counter
+                        </Badge>
+                    }
+
+                </Button>
+            }
         </div>
 
-  </div>
+    </div>
 
 }
