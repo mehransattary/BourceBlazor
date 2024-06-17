@@ -1,4 +1,5 @@
 ﻿@page "/Formols"
+@page "/Formols/{insCode}/{nomadDate:int}/{NomadName}"
 @rendermode InteractiveWebAssembly
 @attribute [Authorize]
 
@@ -7,6 +8,7 @@
 </PageTitle>
 
 <div class="row">
+
     <div class="col-6">
         <h4>
             فرمول های نماد
@@ -14,6 +16,9 @@
     </div>
 
     <div class="col-6" style="text-align:end">
+        <Button Outline="true" Color="ButtonColor.Primary" @onclick=" ()=> GoBackNomadDate()">
+            <Icon Name="IconName.ArrowLeftSquare" />
+        </Button>
     </div>
 
 </div>
@@ -24,6 +29,7 @@
         <Spinner Type="SpinnerType.Dots" Class="me-3" Color="SpinnerColor.Primary" Size="SpinnerSize.Large" />
     </div>
 }
+
 <EditForm Model="Model" OnValidSubmit="SaveFormol" FormName="formols">
     <div class="row mt-2">
 
@@ -42,7 +48,6 @@
             <InputNumber class="form-control" placeholder="حجم " @bind-Value="Model!.HajmFormol" />
         </div>
 
-
         <div class="col-md-2 col-6">
             <label class="form-label">چند مرحله ای</label>
             <InputNumber class="form-control" placeholder="مراحل " @bind-Value="Model!.MultiStage" />
@@ -56,6 +61,7 @@
         <div class="col-md-1 col-6 mt-4">
             <Button Type="ButtonType.Submit" Color="ButtonColor.Success"> ذخیره  </Button>
         </div>
+
     </div>
 </EditForm>
 

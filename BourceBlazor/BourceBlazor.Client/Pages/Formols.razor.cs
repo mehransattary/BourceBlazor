@@ -14,6 +14,23 @@ namespace BourceBlazor.Client.Pages;
 /// </summary>
 public partial class Formols
 {
+    #region Parameter
+
+    //==========Parameter========================//
+
+    [Parameter]
+    public string InsCode { get; set; } = string.Empty;
+
+    [Parameter]
+    public string NomadName { get; set; } = string.Empty;
+
+    [Parameter]
+    public int NomadDate { get; set; }
+
+    #endregion
+
+    #region Fields
+
     //=========Fields==========================//
 
     private Grid<FormolViewModel> gridFormol = default!;
@@ -25,7 +42,9 @@ public partial class Formols
     [SupplyParameterFromForm]
     public Formol? Model { get; set; }
 
+    #endregion
 
+    #region Methods  
 
     //==========Methods=========================//
     protected override void OnInitialized()
@@ -51,9 +70,13 @@ public partial class Formols
         {
             var resultApi = await httpClient.GetFromJsonAsync<IEnumerable<Formol>>("/api/formols");
 
+            if(resultApi==null)
+            {
+                return new List<FormolViewModel>();
+            }
+
             var result = resultApi.GroupBy(x => x.Code).Select(x => new FormolViewModel()
             {
-
                 NomadName = x.FirstOrDefault().Name,
                 Formols = x.Select(a => new Formol()
                 {
@@ -84,28 +107,38 @@ public partial class Formols
         await ReloadFormol();
     }
 
- 
+    private void GoBackNomadDate()
+    {
+        NavigationManager.NavigateTo($"/NomadAction/{InsCode}/{NomadDate}/{NomadName}");
+    }
 
+    #endregion
 }
+
 
 /// <summary>
 /// AutoComplete
 /// </summary>
 public partial class Formols
 {
-    //=========Fields==========================//
+    #region Fields
 
+    //=========Fields==========================//
     private string searchNomadName { get; set; } = string.Empty;
     private string searchNomadInsCode { get; set; } = string.Empty;
+
+    #endregion
+
+    #region Methods
 
     //==========Methods=========================//
     private async Task SaveFormol()
     {
         var validation = Model != null &&
-            !string.IsNullOrEmpty(searchNomadName) && 
-            Model.TimeFormol != 0 &&
-            Model.HajmFormol != 0 &&
-            Model.MultiStage!=0;
+                        !string.IsNullOrEmpty(searchNomadName) &&
+                        Model.TimeFormol != 0 &&
+                        Model.HajmFormol != 0 &&
+                        Model.MultiStage != 0;
 
         if (validation)
         {
@@ -113,9 +146,9 @@ public partial class Formols
             {
                 Name = searchNomadName,
                 Code = searchNomadInsCode,
-                HajmFormol =Model!.HajmFormol,
-                TimeFormol =Model!.TimeFormol,
-                MultiStage =Model!.MultiStage,
+                HajmFormol = Model!.HajmFormol,
+                TimeFormol = Model!.TimeFormol,
+                MultiStage = Model!.MultiStage,
                 CalculationPrice = Model!.CalculationPrice
             };
 
@@ -139,7 +172,8 @@ public partial class Formols
     private void GetEventCallbackInstrumentSearch(InstrumentSearch instrumentSearch)
     {
         searchNomadInsCode = instrumentSearch.insCode;
-        searchNomadName = instrumentSearch.lVal30 + " ( " + instrumentSearch.lVal18AFC +" )";
+        searchNomadName = instrumentSearch.lVal30 + " ( " + instrumentSearch.lVal18AFC + " )";
     }
 
+    #endregion
 }

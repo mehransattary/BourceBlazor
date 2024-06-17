@@ -13,22 +13,21 @@ public partial class SearchNomad
     [Parameter]
     public EventCallback<InstrumentSearch> EventCallbackInstrumentSearch { get; set; }
 
+    [Parameter]
+    public string NomadName { get; set; } = string.Empty;
+
     //==========Fileds========================//
 
     private AutoComplete<InstrumentSearch> RefAutoComplete = default!;
 
 
-    private string NomadName { get; set; } = string.Empty;
-
     //==========Methods========================//
-
-
+  
     private async Task<AutoCompleteDataProviderResult<InstrumentSearch>> GetNomadProvider(AutoCompleteDataProviderRequest<InstrumentSearch> request)
     {
         var value = request.Filter.Value.FixPersianChars();
         RefAutoComplete.Value = value;
         var result = await GetNomadData(value);
-
         return request.ApplyTo(result);
     }
 

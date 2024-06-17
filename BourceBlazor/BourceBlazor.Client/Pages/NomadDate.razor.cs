@@ -52,13 +52,13 @@ public partial class NomadDate
     private async Task<IEnumerable<ClosingPriceDaily>> GetData()
     { 
         var urlDate = configuration["Urls:UrlDate"];
+
         try
         {
             var response = await httpClient.GetFromJsonAsync<RootClosingPriceDaily>(urlDate + InsCode + "/0");
 
             if (response != null && response.closingPriceDaily.Any())
             {
-
                 closingPriceDailies = response.closingPriceDaily.Select((item, index) => new ClosingPriceDaily
                 {
                     Counter = ++index,

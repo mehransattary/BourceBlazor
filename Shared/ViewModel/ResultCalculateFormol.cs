@@ -7,7 +7,6 @@ namespace AppShared.ViewModel
     {
         public List<TradeHistory> MainRealBaseTradeHistories = new();
 
-
         public List<TradeHistory> DeletedTradeHistories = new();
 
         public List<FormolSwitchViewModel> SeletedFormolSwitches { get; set; } 

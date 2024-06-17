@@ -6,7 +6,7 @@ namespace BourceBlazor.Services;
 
 public interface IFormolService
 {
-    Task<ResultCalculateFormol> GetFilterByFormolAll(FormolSendAction formol,
+    Task<ResultCalculateFormol> GetFilterByFormolAll(List<FormolSendAction> formols ,
                                                      List<TradeHistory> TradeHistoriesList);
 
 }

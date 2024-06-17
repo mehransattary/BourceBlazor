@@ -6,13 +6,16 @@ using System.Net.Http.Json;
 
 namespace BourceBlazor.Client.Pages.Components;
 
+/// <summary>
+/// Parameters and Fields
+/// </summary>
 public partial class FormolsByCode
 {
     [Parameter]
     public string InsCode { get; set; } = string.Empty;
 
     [Parameter]
-    public bool ISChangeFormols { get; set; } = false;
+    public bool IsChangeFormols { get; set; } = false;
 
     [Parameter]
     public bool IsCleanNomad { get; set; } = false;
@@ -24,17 +27,19 @@ public partial class FormolsByCode
     public EventCallback<List<FormolSwitchViewModel>> EventCallbackSelectedFormolSwitches { get; set; }
 
 
-    private IEnumerable<Formol> Formols = new List<Formol>();
-
     private List<FormolSwitchViewModel> FormolSwitches { get; set; } = new();
+
+    private IEnumerable<Formol> Formols = new List<Formol>();
 
     private int SelectedFormolCounter = 0;
 
-    private int MainHajm = 0;
+}
 
-    private int MainTime = 0;
-
-
+/// <summary>
+/// Methods
+/// </summary>
+public partial class FormolsByCode
+{   
     protected override void OnInitialized()
     {
         Formols = new List<Formol>();
@@ -43,8 +48,15 @@ public partial class FormolsByCode
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!string.IsNullOrEmpty(InsCode) && !Formols.Any() && !FormolSwitches.Any() && ISChangeFormols)
-            await GetFormols();
+        var validation = !string.IsNullOrEmpty(InsCode) &&
+                         !Formols.Any() &&
+                         !FormolSwitches.Any() &&
+                         IsChangeFormols;
+
+        if (validation)
+        {
+            await SetFormolSwitches();
+        }
 
         if (IsCleanNomad)
         {
@@ -54,27 +66,46 @@ public partial class FormolsByCode
         }
     }
 
-    private async Task GetFormols()
+    private async Task SetFormolSwitches()
     {
-        Formols = await httpClient.GetFromJsonAsync<IEnumerable<Formol>>($"/GetFormolsByInCode/{InsCode}");
+        FormolSwitches.Clear();
 
-        if (Formols != null)
+        var formols =await GetFormols();
+
+        Formols = formols;
+
+        if (!Formols.Any())
         {
-            foreach (var formol in Formols)
-            {
-                var model = new FormolSwitchViewModel()
-                {
-                    Formol = formol,
-                };
-
-                FormolSwitches.Add(model);
-            }
-
-            FormolSwitches = FormolSwitches
-                            .OrderBy(x => x.Counter)
-                            .ThenByDescending(X => X.Checked)
-                            .ToList();
+            return;
         }
+
+        foreach (var formol in Formols)
+        {
+            var model = new FormolSwitchViewModel()
+            {
+                Formol = formol
+            };
+
+            FormolSwitches.Add(model);
+        }
+
+        FormolSwitches = FormolSwitches
+                        .OrderBy(x => x.Counter)
+                        .ThenByDescending(X => X.Checked)
+                        .ToList();
+    }
+
+    private async Task<IEnumerable<Formol>> GetFormols()
+    {
+        IEnumerable<Formol>? Formolsenumerable =
+           await httpClient.GetFromJsonAsync<IEnumerable<Formol>>($"/GetFormolsByInCode/{InsCode}");
+
+        if (Formolsenumerable == null)
+        {
+            return new List<Formol>();
+        }
+
+        return Formolsenumerable;
     }
 
     private void AddToFormolSwitchViewModel(FormolSwitchViewModel formolSwitch)
@@ -82,7 +113,6 @@ public partial class FormolsByCode
         if (!formolSwitch.Checked)
         {
             SetActiveFormol(formolSwitch);
-            SetFormolOnData(formolSwitch);
         }
         else
         {
@@ -118,10 +148,7 @@ public partial class FormolsByCode
 
         formolSwitch.Checked = false;
         formolSwitch.Counter = 0;
-        formolSwitch.BeforeTradeHistories = new();
-        formolSwitch.AfterTradeHistories = new();
-
-        SelectedFormolCounter =0;
+        SelectedFormolCounter = 0;
 
         void UpdateCounterShift()
         {
@@ -143,50 +170,8 @@ public partial class FormolsByCode
     {
         formolSwitch.Checked = true;
         formolSwitch.Counter = SelectedFormolCounter + 1;
-        formolSwitch.BeforeTradeHistories.AddRange(TradeHistories);
-        formolSwitch.AfterTradeHistories.AddRange(TradeHistories);
-
         SelectedFormolCounter += 1;
     }
 
-    private void SetFormolOnData(FormolSwitchViewModel formolSwitch)
-    {
-        var TradeHistoriesList = TradeHistories.ToList();
 
-        var firstItem = TradeHistoriesList.OrderBy(_ => _.nTran).FirstOrDefault();
-
-        if (firstItem == null)
-            return;
-
-        MainHajm = firstItem.qTitTran;
-        MainTime = firstItem.hEven + formolSwitch.Formol.TimeFormol;
-
-        var listSelected = new List<TradeHistory>();
-
-        listSelected.Add(firstItem);
-
-        var TradeHistoriesListFormoly = TradeHistoriesList.Where(t => t.hEven <= MainTime).ToList();
-
-        foreach (var tradeHistorie in TradeHistoriesListFormoly)
-        {
-            if(tradeHistorie.Counter!= firstItem.Counter)
-            {
-                listSelected.Add(tradeHistorie);
-
-                var validation = (tradeHistorie.qTitTran + MainHajm) > formolSwitch.Formol.HajmFormol;
-
-                MainHajm += tradeHistorie.qTitTran;
-
-                if (validation)
-                {
-                    listSelected.ForEach(x =>
-                    {
-                        TradeHistoriesList.Remove(x);
-                    });
-                }
-            }
-        }
-
-        TradeHistories = TradeHistoriesList;
-    }
 }

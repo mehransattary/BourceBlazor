@@ -8,7 +8,7 @@
     @Title
 </PageTitle>
 
-<div class="row">
+<div class="row mb-2">
 
     <div class="row">
 
@@ -17,24 +17,29 @@
         </div>
         <!--نماد-->
         <div class="col-md-4 col-12 mt-2">
-            <SearchNomad EventCallbackInstrumentSearch="GetEventCallbackInstrumentSearch" />
+            <SearchNomad EventCallbackInstrumentSearch="GetEventCallbackInstrumentSearch" NomadName="@NomadName" />
         </div>
 
         <!--تاریخ-->
         <div class="col-md-4  col-12 mt-2">
-            <SearchDate InsCode="@InsCode" EventCallbackOnChangeDate="GetEventCallbackOnChangeDate" />
+            <SearchDate InsCode="@InsCode" EventCallbackOnChangeDate="GetEventCallbackOnChangeDate" NomadDate="@NomadDate" />
         </div>
 
         <!--بازگشت-->
         <div class="col-md-2 col-12 mt-2" style="text-align:end">
 
-             <Button Outline="true" Color="ButtonColor.Primary" @onclick=" ()=> GoBackNomadDate()">
+             <Button TooltipTitle="بازگشت به تاریخ ها" Outline="true" Color="ButtonColor.Primary" @onclick=" ()=> GoBackNomadDate()">
                 <Icon Name="IconName.ArrowLeftSquare" /> 
-             </Button>
+             </Button>             
+
+            <Button TooltipTitle="فرمول ها" Type="ButtonType.Link" Outline="true" Color="ButtonColor.Info" href=@($"Formols/{InsCode}/{NomadDate}/{NomadName}")>
+                <Icon Name="IconName.Box" />
+            </Button>
 
         </div>
 
     </div>
+
     <div class="row mt-2" style="position: fixed;bottom: 24px; z-index:111;    right: 50%;">
 
         <div class="col-md-4 col-6 text-end">
@@ -83,28 +88,30 @@
 
                     </div>
 
-                    <div class="row mt-3 ">
-                        <FormolsByCode IsCleanNomad="IsCleanNomad"
-                                       ISChangeFormols="ISChangeFormols"
-                                       InsCode="@InsCode" 
-                                       TradeHistories="TradeHistories"
-                                       EventCallbackSelectedFormolSwitches="GetEventCallbackSelectedFormolSwitches" />
+                    <FormolsByCode IsCleanNomad="IsCleanNomad"
+                                   IsChangeFormols="ISChangeFormols"
+                                   InsCode="@InsCode"
+                                   TradeHistories="TradeHistories"
+                                   EventCallbackSelectedFormolSwitches="GetEventCallbackSelectedFormolSwitches" />
 
-                        <!--اعمال-->
-                        <div class="col-12 mt-3" style="text-align:start">
-                            <Button Outline="true" Color="ButtonColor.Success" @onclick="()=>GetFilterByFormol(false)">
-                                محاسبه
-                                 معاملات واقعی
-                             </Button>
-                        </div>
+                    <div class="row mt-3 text-end">
 
-                        <!--اعمال-->
-                        <div class="col-12 mt-3" style="text-align:start">
-                            <Button Outline="true" Color="ButtonColor.Danger" @onclick="()=>GetFilterByFormol(true)">
-                                محاسبه  
-                                معاملات حذف شده
-                            </Button>
-                        </div>
+                        @if(SeletedFormolSwitches.Any())
+                        {
+                            <!--اعمال-->
+                            <div class="col-12 mt-3" >
+
+                                <Button Outline="true" Color="ButtonColor.Success" @onclick="()=>GetFilterByFormol(false)">                                       
+                                    <Icon Name="IconName.CheckCircleFill" />  اعمال معاملات واقعی
+                                </Button>
+
+                                <Button Outline="true" Color="ButtonColor.Danger" @onclick="()=>GetFilterByFormol(true)">                                       
+                                    <Icon Name="IconName.TrashFill" /> اعمال معاملات حذف شده
+                                </Button>
+
+                            </div>                          
+                        }
+
                     </div>
 
                 </CardBody>

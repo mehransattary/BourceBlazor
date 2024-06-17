@@ -38,6 +38,7 @@ public partial class NomadAction
 
     //==========Fileds========================//
 
+
     private string Title { get; set; } = string.Empty;
 
 
@@ -65,7 +66,7 @@ public partial class NomadAction
         if (!string.IsNullOrEmpty(InsCode))
         {
             Title = $"{NomadName}  {NomadDate.ToPersianDate()} ";
-        }
+        }      
     }
 
     private async Task<GridDataProviderResult<TradeHistory>> GetDataProvider(GridDataProviderRequest<TradeHistory> request)
@@ -133,20 +134,25 @@ public partial class NomadAction
     {
         await EnableLoadGrid();
 
-        var _formol = SeletedFormolSwitches.FirstOrDefault().Formol;
-
-        var model = new FormolSendAction
+        var formolSendActions = new List<FormolSendAction>();
+        
+        SeletedFormolSwitches.ForEach(item =>
         {
-            CalculationPrice = _formol.CalculationPrice,
-            NomadDate = NomadDate,
-            InsCode = InsCode,
-            HajmFormol = _formol.HajmFormol,
-            MultiStage = _formol.MultiStage,
-            TimeFormol = _formol.TimeFormol,
-            IsDataRemoved = isDataRemoved,
-        };
+            var model = new FormolSendAction
+            {
+                CalculationPrice = item.Formol.CalculationPrice,
+                NomadDate = NomadDate,
+                InsCode = InsCode,
+                HajmFormol = item.Formol.HajmFormol,
+                MultiStage = item.Formol.MultiStage,
+                TimeFormol = item.Formol.TimeFormol,
+                IsDataRemoved = isDataRemoved,
+            };
 
-        var response = await httpClient.PostAsJsonAsync($"/GetCalculateFormols", model);
+            formolSendActions.Add(model);
+        });       
+
+        var response = await httpClient.PostAsJsonAsync($"/GetCalculateFormols", formolSendActions);
 
         if (response.IsSuccessStatusCode)
         {

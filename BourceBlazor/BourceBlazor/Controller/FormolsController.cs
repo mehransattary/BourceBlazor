@@ -60,7 +60,6 @@ namespace BourceBlazor.Controller
         }
 
         // PUT: api/Formols/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFormol(Guid id, Formol formol)
         {
@@ -91,7 +90,6 @@ namespace BourceBlazor.Controller
         }
 
         // POST: api/Formols
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Formol>> PostFormol(Formol formol)
         {
@@ -119,18 +117,20 @@ namespace BourceBlazor.Controller
 
 
         [HttpPost("/GetCalculateFormols")]
-        public async Task<IActionResult> GetCalculateFormols(FormolSendAction formol)
+        public async Task<IActionResult> GetCalculateFormols([FromBody] List<FormolSendAction> formols)
         {
-            var tradeHistories = await httpService.GetTradeHistoriesByApi(formol.InsCode, formol.NomadDate);
+            var firstFormol = formols.FirstOrDefault();
 
-            var result = await formolService.GetFilterByFormolAll(formol, tradeHistories);
+            var tradeHistories = await httpService.GetTradeHistoriesByApi(firstFormol.InsCode, firstFormol.NomadDate);
+
+            var result = await formolService.GetFilterByFormolAll(formols, tradeHistories);
 
             if (!result.IsSuccess)
             {
                 return NotFound(result.ErrorMessage);
             }
 
-            if(formol.IsDataRemoved)
+            if(firstFormol.IsDataRemoved)
             {
                 return Ok(result.DeletedTradeHistories);
             }

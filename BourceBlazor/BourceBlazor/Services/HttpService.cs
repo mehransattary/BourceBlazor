@@ -29,7 +29,7 @@ public class HttpService: IHttpService
         {
           var result =  response.tradeHistory.Where(x => x.canceled == 0)
                                              .DistinctBy(x => new { x.nTran, x.qTitTran, x.hEven })
-                                             .Select((item, index) => new TradeHistory
+                                             .Select(item => new TradeHistory
                                              {
                                                  //ردیف
                                                  nTran = item.nTran,
@@ -39,10 +39,13 @@ public class HttpService: IHttpService
                                                  qTitTran = item.qTitTran,
                                                  //قیمت
                                                  pTran = item.pTran,
-                                            
+                                                 //لغو شده
                                                  canceled = item.canceled
+
                                              })
-                                             .OrderBy(_ => _.nTran).ToList();
+                                             .OrderBy(_ => _.nTran)
+                                             .Skip(0).Take(5)
+                                             .ToList();
                                             
             return result;
         }

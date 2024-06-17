@@ -16,6 +16,9 @@ public partial class SearchDate
     public string InsCode { get; set; }
 
     [Parameter]
+    public int NomadDate { get; set; } 
+
+    [Parameter]
     public EventCallback<ClosingPriceDaily> EventCallbackOnChangeDate { get; set; }
 
     //==========Fileds========================//
@@ -27,17 +30,28 @@ public partial class SearchDate
     private string? searchNomadDate;
 
     //==========Methods========================//
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        searchNomadDate = "140";
-    }
-    protected override void OnAfterRender(bool firstRender)
-    {
+
         if ((string.IsNullOrEmpty(InsCode)))
         {
             searchNomadDate = "140";
         }
     }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (NomadDate != 0 && string.IsNullOrEmpty(searchNomadDate))
+        {
+            closingPriceDailies = await GetNomadDateData();
+            var firstDate = closingPriceDailies.FirstOrDefault(x => x.dEven == NomadDate);
+            searchNomadDate = firstDate.dEvenPersian;
+            await OnNomadDateAutoCompleteChanged(firstDate);
+        }
+    
+    }
+
     private async Task<AutoCompleteDataProviderResult<ClosingPriceDaily>> GetNomadDataProvider(AutoCompleteDataProviderRequest<ClosingPriceDaily> request)
     {
         if (closingPriceDailies is null && (!string.IsNullOrEmpty(InsCode)))
