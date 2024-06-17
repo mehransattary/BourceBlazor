@@ -10,7 +10,7 @@
 @using BourceBlazor
 @using BourceBlazor.Client
 @using BourceBlazor.Components
-@using AppShared.Entities;
+@using Infrastructure.Data;
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using BourceBlazor.Components.Pages;
@@ -19,10 +19,10 @@
 @using Microsoft.AspNetCore.Authorization
 @using Blazored.LocalStorage
 @using Blazored.LocalStorage.StorageOptions
-@using AppShared.ViewModel.Nomad;
-@using AppShared.ViewModel.Nomad.Actions
-@using AppShared.ViewModel.Nomad.Instrument
-@using AppShared.ViewModel.Nomad.ClosingPriceDaily
+@using Application.ViewModel.Nomad;
+@using Application.ViewModel.Nomad.Actions
+@using Application.ViewModel.Nomad.Instrument
+@using Application.ViewModel.Nomad.ClosingPriceDaily
 @inject IHttpClientFactory ClientFactory
 @inject NavigationManager NavigationManager
 @inject IConfiguration configuration

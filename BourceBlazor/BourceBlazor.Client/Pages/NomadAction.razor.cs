@@ -1,17 +1,14 @@
-﻿using AppShared.Entities;
+﻿using Domain.Entities;
 using AppShared.Helper;
-using AppShared.ViewModel.Nomad.Actions;
-using AppShared.ViewModel.Nomad.ClosingPriceDaily;
-using AppShared.ViewModel.Nomad.Instrument;
+using Application.ViewModel.Nomad.Instrument;
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;
 using BlazorInputTags;
 using Microsoft.JSInterop;
-using AppShared.ViewModel;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Collections.Generic;
+using Application.ViewModel;
+using Application.ViewModel.Nomad.ClosingPriceDaily;
+using Application.ViewModel.Nomad.Actions;
 namespace BourceBlazor.Client.Pages;
 
 /// <summary>

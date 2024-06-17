@@ -1,4 +1,4 @@
-using AppShared.Entities;
+using Infrastructure.Data;
 using BourceBlazor.Client;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;

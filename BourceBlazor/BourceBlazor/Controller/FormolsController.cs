@@ -1,10 +1,10 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AppShared.Entities;
-using BourceBlazor.Data;
-using AppShared.ViewModel;
-using BourceBlazor.Services;
+using Application.ViewModel;
+using Infrastructure.Data;
+using Application.Services;
+using Domain.Entities;
 
 namespace BourceBlazor.Controller
 {
@@ -114,7 +114,6 @@ namespace BourceBlazor.Controller
 
             return NoContent();
         }
-
 
         [HttpPost("/GetCalculateFormols")]
         public async Task<IActionResult> GetCalculateFormols([FromBody] List<FormolSendAction> formols)

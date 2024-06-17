@@ -1,6 +1,6 @@
-﻿using AppShared.Entities;
-using AppShared.ViewModel;
-using AppShared.ViewModel.Nomad.Actions;
+﻿using Application.ViewModel;
+using Application.ViewModel.Nomad.Actions;
+using Domain.Entities;
 using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;
 

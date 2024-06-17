@@ -9,10 +9,11 @@
 @using Microsoft.JSInterop
 @using BourceBlazor.Client
 @using BlazorBootstrap;
-@using AppShared.ViewModel.Nomad;
-@using AppShared.ViewModel.Nomad.Actions
-@using AppShared.ViewModel.Nomad.Instrument
-@using AppShared.ViewModel.Nomad.ClosingPriceDaily
+@using Application.ViewModel;
+@using Application.ViewModel.Nomad;
+@using Application.ViewModel.Nomad.Actions
+@using Application.ViewModel.Nomad.Instrument
+@using Application.ViewModel.Nomad.ClosingPriceDaily
 @using System.Text.Json
 @using Microsoft.AspNetCore.Authorization
 @using AppShared.Helper;
@@ -20,8 +21,7 @@
 @using Blazored.LocalStorage
 @using Blazored.LocalStorage.StorageOptions
 @using BourceBlazor.Client.Pages.Components
-@using AppShared.Entities
-@using AppShared.ViewModel
+@using Domain.Entities
 @inject NavigationManager NavigationManager
 @inject HttpClient httpClient
 @inject ILocalStorageService localStorage

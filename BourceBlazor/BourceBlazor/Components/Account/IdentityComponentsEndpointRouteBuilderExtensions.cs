@@ -1,4 +1,4 @@
-using AppShared.Entities;
+using Infrastructure.Data;
 using BourceBlazor.Components.Account.Pages;
 using BourceBlazor.Components.Account.Pages.Manage;
 using Microsoft.AspNetCore.Authentication;

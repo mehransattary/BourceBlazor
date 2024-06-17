@@ -1,10 +1,8 @@
-﻿using AppShared.Entities;
-using AppShared.Helper;
-using AppShared.ViewModel;
-using AppShared.ViewModel.Nomad.Instrument;
+﻿using Application.ViewModel;
+using Application.ViewModel.Nomad.Instrument;
+using Domain.Entities;
 using BlazorBootstrap;
 using BlazorInputTags;
-using System.Diagnostics.Metrics;
 using System.Net.Http.Json;
 
 namespace BourceBlazor.Client.Pages;
@@ -54,7 +52,7 @@ public partial class HajmFilter
             {
               
                 HajmName = x.FirstOrDefault().Name,
-                Hajms = x.Select(a=>new Hajm()
+                Hajms = x.Select(a => new Hajm()
                 {                  
                     HajmValue =a.HajmValue,
                     Id =a.Id                    

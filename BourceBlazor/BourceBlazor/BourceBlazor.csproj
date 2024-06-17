@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\..\Shared\AppShared.csproj" />
     <ProjectReference Include="..\BourceBlazor.Client\BourceBlazor.Client.csproj" />
     <PackageReference Include="Blazor.Bootstrap" Version="2.2.1" />

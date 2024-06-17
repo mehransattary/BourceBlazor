@@ -1,6 +1,5 @@
-﻿using AppShared.Helper;
-using AppShared.ViewModel.Nomad.Actions;
-using AppShared.ViewModel.Nomad.ClosingPriceDaily;
+﻿using Application.ViewModel.Nomad.ClosingPriceDaily;
+using AppShared.Helper;
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;

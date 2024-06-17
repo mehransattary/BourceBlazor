@@ -1,10 +1,9 @@
-﻿using AppShared.Entities;
-using AppShared.ViewModel.Nomad.Instrument;
-using AppShared.ViewModel;
+﻿using Domain.Entities;
+using Application.ViewModel;
 using BlazorBootstrap;
-using BlazorInputTags;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Components;
+using Application.ViewModel.Nomad.Instrument;
 
 namespace BourceBlazor.Client.Pages;
 

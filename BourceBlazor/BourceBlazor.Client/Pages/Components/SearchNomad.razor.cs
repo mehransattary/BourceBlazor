@@ -1,5 +1,5 @@
-﻿using AppShared.Helper;
-using AppShared.ViewModel.Nomad.Instrument;
+﻿using Application.ViewModel.Nomad.Instrument;
+using AppShared.Helper;
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;

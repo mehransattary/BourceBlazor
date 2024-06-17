@@ -1,12 +1,11 @@
-using AppShared.Entities;
+using Infrastructure.Data;
 using Blazored.LocalStorage;
 using BourceBlazor.Components;
 using BourceBlazor.Components.Account;
-using BourceBlazor.Data;
-using BourceBlazor.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

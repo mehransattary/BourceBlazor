@@ -1,4 +1,4 @@
-﻿using AppShared.ViewModel.Nomad.ClosingPriceDaily;
+﻿using Application.ViewModel.Nomad.ClosingPriceDaily;
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;
@@ -15,13 +15,11 @@ public partial class NomadDate
     [Parameter]
     public string NomadName { get; set; } 
 
-    Grid<ClosingPriceDaily> grid = default!;
 
     public bool IsLoad { get; set; } = true;
 
     private IEnumerable<ClosingPriceDaily> closingPriceDailies = default!;
 
-    private HashSet<ClosingPriceDaily> selectedEmployees = new();
 
     #endregion
 
@@ -88,7 +86,7 @@ public partial class NomadDate
     /// <returns></returns>
     private Task OnSelectedItemsChanged(HashSet<ClosingPriceDaily> employees)
     {
-        selectedEmployees = employees is not null && employees.Any() ? employees : new();
+        var selectedEmployees = employees is not null && employees.Any() ? employees : new();
         return Task.CompletedTask;
     }
 

@@ -1,5 +1,5 @@
-﻿using AppShared.ViewModel.Nomad.Actions;
-using BourceBlazor.Services;
+﻿using Application.Services;
+using Application.ViewModel.Nomad.Actions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BourceBlazor.Controller

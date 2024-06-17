@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Domain.Entities;
+using Infrastructure.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AppShared.Entities;
-using BourceBlazor.Data;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace BourceBlazor.Controller

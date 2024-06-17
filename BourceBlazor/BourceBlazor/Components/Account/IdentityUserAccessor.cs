@@ -1,4 +1,4 @@
-using AppShared.Entities;
+using Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 
 namespace BourceBlazor.Components.Account
