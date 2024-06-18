@@ -259,9 +259,13 @@ public class FormolService : IFormolService
     /// <param name="TradeHistoriesList"></param>
     /// <returns></returns>
     private bool GetCalculateTradeHistories(FormolSendAction formol, List<TradeHistory> TradeHistoriesList)
-    {
+    {      
+
+        var lastBaseTrade = BaseTradeHistories.OrderByDescending(x => x.nTran).FirstOrDefault();
+
         //ردیف هایی که باید محاسبه شوند طبق شرایط زمان ومراحل
         var calculateTradeHistories = TradeHistoriesList
+                                          .Where(x=> !(lastBaseTrade!=null) || x.nTran >= lastBaseTrade.nTran)
                                           .Skip(CurrentMultiStage)
                                           .Where(x => x.hEven <= BaseTradeHistoriesViewModel.BaseEndTime)
                                           .ToList();
