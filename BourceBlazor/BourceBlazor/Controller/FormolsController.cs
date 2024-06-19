@@ -131,10 +131,10 @@ namespace BourceBlazor.Controller
 
             if(firstFormol.IsDataRemoved)
             {
-                return Ok(result.DeletedTradeHistories);
+                return Ok(result.DeletedTradeHistories.Distinct());
             }
 
-            return Ok(result.MainRealBaseTradeHistories);
+            return Ok(result.MainRealBaseTradeHistories.Distinct());
         }
 
         private bool FormolExists(Guid id)
