@@ -15,10 +15,10 @@ namespace BourceBlazor.Controller
             this.httpService = httpService;
         }
 
-        [HttpGet("{insCode}/{nomadDate}")]
-        public async Task<ActionResult<List<TradeHistory>>> Get(string insCode, int nomadDate)
+        [HttpGet("{insCode}/{nomadDate}/{skip}/{take}")]
+        public async Task<ActionResult<List<TradeHistory>>> Get(string insCode, int nomadDate, int skip, int take)
         {
-            var tradeHistories = await httpService.GetTradeHistoriesByApi(insCode, nomadDate);
+            var tradeHistories = await httpService.GetTradeHistoriesByApi(insCode, nomadDate, skip, take);
             return tradeHistories;
         }
     }

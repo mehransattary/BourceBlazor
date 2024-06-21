@@ -1,5 +1,6 @@
 ﻿using Application.ViewModel.Nomad.Actions;
 using Microsoft.Extensions.Configuration;
+using System.Linq;
 using System.Net.Http.Json;
 
 namespace Application.Services;
@@ -21,7 +22,7 @@ public class HttpService : IHttpService
     /// <param name="insCode"></param>
     /// <param name="nomadDate"></param>
     /// <returns></returns>
-    public async Task<List<TradeHistory>> GetTradeHistoriesByApi(string insCode, int nomadDate)
+    public async Task<List<TradeHistory>> GetTradeHistoriesByApi(string insCode, int nomadDate, int skip, int take)
     {
         var urlAction = configuration["Urls:UrlAction"];
 
@@ -29,25 +30,32 @@ public class HttpService : IHttpService
 
         if (response != null && response.tradeHistory.Any())
         {
-            var result = response.tradeHistory.Where(x => x.canceled == 0)
-                                               .DistinctBy(x => new { x.nTran, x.qTitTran, x.hEven })
-                                               .Select(item => new TradeHistory
-                                               {
-                                                   //ردیف
-                                                   nTran = item.nTran,
-                                                   //زمان
-                                                   hEven = item.hEven,
-                                                   //حجم
-                                                   qTitTran = item.qTitTran,
-                                                   //قیمت
-                                                   pTran = item.pTran,
-                                                   //لغو شده
-                                                   canceled = item.canceled
 
-                                               })
-                                               .OrderBy(_ => _.nTran)
-                                              // .Skip(216).Take(50)
-                                               .ToList();
+            var result = response.tradeHistory.Where(x => x.canceled == 0)
+                                           .DistinctBy(x => new { x.nTran, x.qTitTran, x.hEven })
+                                           .Select(item => new TradeHistory
+                                           {
+                                               //ردیف
+                                               nTran = item.nTran,
+                                               //زمان
+                                               hEven = item.hEven,
+                                               //حجم
+                                               qTitTran = item.qTitTran,
+                                               //قیمت
+                                               pTran = item.pTran,
+                                               //لغو شده
+                                               canceled = item.canceled
+
+                                           }).OrderBy(_ => _.nTran).ToList();
+
+            if (skip!=0 && take!=0)
+            {
+                result = result.Skip(skip-1).Take(take).ToList();
+            }
+            else
+            {
+                result = result.ToList();
+            }                                 
 
             return result;
         }

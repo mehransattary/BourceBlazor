@@ -9,6 +9,7 @@ using Microsoft.JSInterop;
 using Application.ViewModel;
 using Application.ViewModel.Nomad.ClosingPriceDaily;
 using Application.ViewModel.Nomad.Actions;
+using System.Runtime.CompilerServices;
 namespace BourceBlazor.Client.Pages;
 
 /// <summary>
@@ -43,8 +44,10 @@ public partial class NomadAction
 
     public bool IsLoad { get; set; } = true;
 
-
     private IEnumerable<TradeHistory> TradeHistories = default!;
+
+    public int Skip { get; set; } = 0;
+    public int Take { get; set; } = 0;
 
     #endregion
 
@@ -82,7 +85,8 @@ public partial class NomadAction
     { 
         try
         {
-            var response = await httpClient.GetFromJsonAsync<List<TradeHistory>>("/api/TradeHistory/" + InsCode + "/" + NomadDate );
+            var response = await httpClient
+                .GetFromJsonAsync<List<TradeHistory>>("/api/TradeHistory/" + InsCode + "/" + NomadDate +"/"+  Skip + "/" + Take  );
 
             if (response != null && response.Any())
             {
@@ -149,7 +153,7 @@ public partial class NomadAction
             formolSendActions.Add(model);
         });       
 
-        var response = await httpClient.PostAsJsonAsync($"/GetCalculateFormols", formolSendActions);
+        var response = await httpClient.PostAsJsonAsync($"/GetCalculateFormols/{Skip}/{Take}", formolSendActions);
 
         if (response.IsSuccessStatusCode)
         {
@@ -216,6 +220,7 @@ public partial class NomadAction
             SetEmptySumHajmAndCount();
             SetEmptBaseFormol();
             TradeHistories = new List<TradeHistory>();
+            NomadDate = 0;
             grid.Data = TradeHistories;
             await grid.RefreshDataAsync();
         }

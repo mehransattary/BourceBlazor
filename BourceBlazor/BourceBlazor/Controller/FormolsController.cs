@@ -115,26 +115,34 @@ namespace BourceBlazor.Controller
             return NoContent();
         }
 
-        [HttpPost("/GetCalculateFormols")]
-        public async Task<IActionResult> GetCalculateFormols([FromBody] List<FormolSendAction> formols)
+        [HttpPost("/GetCalculateFormols/{skip}/{take}")]
+        public async Task<IActionResult> GetCalculateFormols([FromBody] List<FormolSendAction> formols,int skip , int take)
         {
-            var firstFormol = formols.FirstOrDefault();
-
-            var tradeHistories = await httpService.GetTradeHistoriesByApi(firstFormol.InsCode, firstFormol.NomadDate);
-
-            var result = await formolService.GetFilterByFormolAll(formols, tradeHistories);
-
-            if (!result.IsSuccess)
+            try
             {
-                return NotFound(result.ErrorMessage);
+                var firstFormol = formols.FirstOrDefault();
+
+                var tradeHistories = await httpService.GetTradeHistoriesByApi(firstFormol.InsCode, firstFormol.NomadDate, skip, take);
+
+                var result = await formolService.GetFilterByFormolAll(formols, tradeHistories);
+
+                if (!result.IsSuccess)
+                {
+                    return NotFound(result.ErrorMessage);
+                }
+
+                if (firstFormol.IsDataRemoved)
+                {
+                    return Ok(result.DeletedTradeHistories.Distinct());
+                }
+
+                return Ok(result.MainRealBaseTradeHistories.Distinct());
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
             }
 
-            if(firstFormol.IsDataRemoved)
-            {
-                return Ok(result.DeletedTradeHistories.Distinct());
-            }
-
-            return Ok(result.MainRealBaseTradeHistories.Distinct());
         }
 
         private bool FormolExists(Guid id)

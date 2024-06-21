@@ -1,5 +1,6 @@
 ﻿using Application.ViewModel;
 using Application.ViewModel.Nomad.Actions;
+using System.Diagnostics.Metrics;
 
 namespace Application.Services;
 
@@ -31,6 +32,7 @@ public class FormolService : IFormolService
     //تعداد کل معاملات
     private string SumCount { get; set; } = string.Empty;
 
+    public long Counterx { get; set; } = 1;
     #endregion
 
     #region Main Methods
@@ -55,6 +57,8 @@ public class FormolService : IFormolService
 
             while (Restart)
             {
+                Counterx++;
+
                 BaseTradeHistories.Clear();
 
                 if (TradeHistoriesList.Count <= CurrentMultiStage)
@@ -156,7 +160,7 @@ public class FormolService : IFormolService
 
         var model = new ResultCalculateFormol()
         {
-            DeletedTradeHistories = DeletedTradeHistories.OrderBy(x => x.nTran).ToList(),
+            DeletedTradeHistories = DeletedTradeHistories.ToList(),
             MainRealBaseTradeHistories = resMainRealBaseTradeHistories.OrderBy(x => x.nTran).ToList(),
             SumCount = SumCount,
             SumHajm = SumHajm,
@@ -288,9 +292,9 @@ public class FormolService : IFormolService
         // اگر تعدا ردیف های پایه بزرگتر از تعداد  معاملاتی که قرار است محاسبه شوند
         //اگر ردیف های پایه مخالف صفر باشند و تعداد معاملات محاسباتی هم صفر باشد 
         //اگر تعداد معاملات محاسبه شده برابر ردیف های پایه باشد 
-        var validation = calculateTradeHistories.Count < BaseTradeHistories.Count ||
-                         calculateTradeHistories.Count == (0) && BaseTradeHistories.Count != 0 ||
-                         calculateTradeHistories.Count == BaseTradeHistories.Count;
+        //var validation = calculateTradeHistories.Count < BaseTradeHistories.Count ||
+        //                 calculateTradeHistories.Count == (0) && BaseTradeHistories.Count != 0 ||
+        //                 calculateTradeHistories.Count == BaseTradeHistories.Count;
         //تعداد معاملات برابر صفر شود
         //calculateTradeHistories.Count == 0
      

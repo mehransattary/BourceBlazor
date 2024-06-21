@@ -25,17 +25,18 @@
             <SearchDate InsCode="@InsCode" EventCallbackOnChangeDate="GetEventCallbackOnChangeDate" NomadDate="@NomadDate" />
         </div>
 
+
         <!--بازگشت-->
         <div class="col-md-2 col-12 mt-2" style="text-align:end">
 
             @{
                 var validationBackNomadDate = !string.IsNullOrEmpty(InsCode) &&
-                                              !string.IsNullOrEmpty(NomadName);
+                !string.IsNullOrEmpty(NomadName);
             }
 
             @if (validationBackNomadDate)
             {
-                <Button  TooltipTitle="بازگشت به تاریخ ها" Outline="true" Color="ButtonColor.Primary" @onclick=" ()=> GoBackNomadDate()">
+                <Button TooltipTitle="بازگشت به تاریخ ها" Outline="true" Color="ButtonColor.Primary" @onclick=" ()=> GoBackNomadDate()">
                     <Icon Name="IconName.ArrowLeftSquare" />
                 </Button>
             }
@@ -85,22 +86,44 @@
 
                 </Badge>
             }
-        </div>     
-</div>
+        </div>
+    </div>
 
     <div class="col-md-12 col-12 mt-2">
         <Collapse @ref="collapse1">
             <Card>
                 <CardBody>
 
-                    <div class="row mt-2">                 
+                    <div class="row mt-2">
+
                         <!--حجم های فیلتری-->
-                        <div class="col-10">
+                        <div class="col-5">
                             <InputTags Value="HajmsTags" Options="InputTagOptions" OnTagRemoved="DeleteHajm" OnTagAdded="SaveHajm" />
+                        </div>                  
+
+                        <!--از-->
+                        <div class="col-md-3  col-12 ">
+                            <div class="mb-3 row">
+                                <label for="Skip" class="col-sm-2 col-form-label">شروع </label>
+                                <div class="col-sm-10">
+                                    <input @bind="Skip" placeholder="از" class="form-control" min="0" id="Skip" />
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!--تا-->
+                        <div class="col-md-3  col-12 ">
+                            <div class="mb-3 row">
+                                <label for="Take" class="col-sm-2 col-form-label">  تعداد </label>
+                                <div class="col-sm-10">
+                                    <input @bind="Take" placeholder="تا" class="form-control" min="0" id="Take" />
+                                </div>
+                            </div>
                         </div>
 
                         <!--اعمال-->
-                        <div class="col-2" style="text-align:start">
+                        <div class="col-1" style="text-align:start">
                             <Button Outline="true" Color="ButtonColor.Success" @onclick="DoFilterOnGrid"> <Icon Name="IconName.Search" />  </Button>
                         </div>
 
@@ -114,20 +137,20 @@
 
                     <div class="row mt-3 text-end">
 
-                        @if(SeletedFormolSwitches.Any())
+                        @if (SeletedFormolSwitches.Any())
                         {
                             <!--اعمال-->
-                            <div class="col-12 mt-3" >
+                            <div class="col-12 mt-3">
 
-                                <Button Outline="true" Color="ButtonColor.Success" @onclick="()=>GetFilterByFormol(false)">                                       
+                                <Button Outline="true" Color="ButtonColor.Success" @onclick="()=>GetFilterByFormol(false)">
                                     <Icon Name="IconName.CheckCircleFill" />  اعمال معاملات واقعی
                                 </Button>
 
-                                <Button Outline="true" Color="ButtonColor.Danger" @onclick="()=>GetFilterByFormol(true)">                                       
+                                <Button Outline="true" Color="ButtonColor.Danger" @onclick="()=>GetFilterByFormol(true)">
                                     <Icon Name="IconName.TrashFill" /> اعمال معاملات حذف شده
                                 </Button>
 
-                            </div>                          
+                            </div>
                         }
 
                     </div>
@@ -149,44 +172,44 @@
     </div>
 }
 
-    <Grid @ref="grid"
-          TItem="TradeHistory"
-          Data="TradeHistories"
-          Class="table table-hover table-bordered table-striped mt-3  gridNomadActions"     
-          DataProvider="GetDataProvider"
-          AllowFiltering="true"
-          AllowSorting="true"
-          AllowSelection="false"
-          Responsive="true"
-          AllowPaging="true"
-          PageSize="30"
-          PageSizeSelectorVisible
-          PaginationItemsTextFormat="{0} - {1} از {2} ردیف"
-          PageSizeSelectorItems="[30,50,100]"
-          ItemsPerPageText="تعداد نمایش"
-          EmptyText="اطلاعاتی وجود ندارد">
+<Grid @ref="grid"
+      TItem="TradeHistory"
+      Data="TradeHistories"
+      Class="table table-hover table-bordered table-striped mt-3  gridNomadActions"
+      DataProvider="GetDataProvider"
+      AllowFiltering="true"
+      AllowSorting="true"
+      AllowSelection="false"
+      Responsive="true"
+      AllowPaging="true"
+      PageSize="100"
+      PageSizeSelectorVisible
+      PaginationItemsTextFormat="{0} - {1} از {2} ردیف"
+      PageSizeSelectorItems="[100,200,300]"
+      ItemsPerPageText="تعداد نمایش"
+      EmptyText="اطلاعاتی وجود ندارد">
 
 
-        <GridColumn TItem="TradeHistory" HeaderText="ردیف" PropertyName="nTran" SortKeySelector="item => item.nTran">
-            @context.nTran
-        </GridColumn>
+    <GridColumn TItem="TradeHistory" HeaderText="ردیف" PropertyName="nTran" SortKeySelector="item => item.nTran">
+        @context.nTran
+    </GridColumn>
 
-        <GridColumn TItem="TradeHistory" HeaderText=" زمان" PropertyName="hEven" SortKeySelector="item => item.hEven">
-            @context.hEven.ToTime()
-        </GridColumn>
+    <GridColumn TItem="TradeHistory" HeaderText=" زمان" PropertyName="hEven" SortKeySelector="item => item.hEven">
+        @context.hEven.ToTime()
+    </GridColumn>
 
-        <GridColumn TItem="TradeHistory" HeaderText="حجم" PropertyName="qTitTran" SortKeySelector="item => item.qTitTran">
-            @context.qTitTran.ToString("#,0")
-        </GridColumn>
+    <GridColumn TItem="TradeHistory" HeaderText="حجم" PropertyName="qTitTran" SortKeySelector="item => item.qTitTran">
+        @context.qTitTran.ToString("#,0")
+    </GridColumn>
 
-        <GridColumn TItem="TradeHistory" HeaderText="قیمت" PropertyName="pTran" SortKeySelector="item => item.pTran">
-            @context.pTran.ToString("#,0")
-        </GridColumn>
+    <GridColumn TItem="TradeHistory" HeaderText="قیمت" PropertyName="pTran" SortKeySelector="item => item.pTran">
+        @context.pTran.ToString("#,0")
+    </GridColumn>
 
-        <GridColumn TItem="TradeHistory" HeaderText=" وضعیت" PropertyName="canceled" SortKeySelector="item => item.canceled">
-            @(context.canceled == 0 ? "فعال" : "غیر فعال ")
-        </GridColumn>
+    <GridColumn TItem="TradeHistory" HeaderText=" وضعیت" PropertyName="canceled" SortKeySelector="item => item.canceled">
+        @(context.canceled == 0 ? "فعال" : "غیر فعال ")
+    </GridColumn>
 
-    </Grid>
+</Grid>
 
 
