@@ -1,6 +1,7 @@
 ﻿using Application.ViewModel;
 using Application.ViewModel.Nomad.Actions;
 using System.Diagnostics.Metrics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Application.Services;
 
@@ -228,7 +229,7 @@ public class FormolService : IFormolService
             BaseTradeHistoriesViewModel.BasePrice = firstTradeHistories.pTran;
             BaseTradeHistoriesViewModel.BaseHajm = firstTradeHistories.qTitTran;
             BaseTradeHistoriesViewModel.BaseTime = firstTradeHistories.hEven;
-            BaseTradeHistoriesViewModel.BaseEndTime = firstTradeHistories.hEven + formol.TimeFormol;
+            BaseTradeHistoriesViewModel.BaseEndTime = ConvertTime( firstTradeHistories.hEven , formol.TimeFormol);
         }
         else if (CurrentMultiStage > 1)
         {
@@ -241,7 +242,7 @@ public class FormolService : IFormolService
 
             BaseTradeHistoriesViewModel.BasePrice = firstTradeHistories.pTran;
             BaseTradeHistoriesViewModel.BaseTime = firstTradeHistories.hEven;
-            BaseTradeHistoriesViewModel.BaseEndTime = firstTradeHistories.hEven + formol.TimeFormol;
+            BaseTradeHistoriesViewModel.BaseEndTime = ConvertTime ( firstTradeHistories.hEven , formol.TimeFormol);
             BaseTradeHistoriesViewModel.BaseHajm = BaseTradeHistories.Sum(b => b.qTitTran);
         }
 
@@ -408,5 +409,75 @@ public class FormolService : IFormolService
         return false;
     }
 
+    private int ConvertTime(int time,int formolTime)
+    {
+        //90021
+        var _string = time.ToString();
+        var _secondTime = _string.Substring(_string.Length - 2);
+        var _minutesTime = _string.Substring(_string.Length - 4).Substring(0,2);
+        string _hoursTime = string.Empty;
+
+        if (_string.Length==5)
+        {
+            _hoursTime = _string.Substring(_string.Length - 5).Substring(0,1);
+        }
+        else
+        {
+            _hoursTime = _string.Substring(_string.Length - 6).Substring(0,2);
+        }
+
+        int secondTime = int.Parse(_secondTime);
+        int minutesTime = int.Parse(_minutesTime);
+        int hoursTime = int.Parse(_hoursTime);
+
+        int resSecond = 0;
+        string ResultEnd = string.Empty;
+
+       
+        var validSecond = (secondTime + formolTime) < 60;
+
+        if(validSecond)
+        {
+            resSecond = secondTime + formolTime;
+            var updateResSecond = ConvertNumberTwoLength(resSecond);
+            var updateResMin = ConvertNumberTwoLength(minutesTime);
+
+            ResultEnd = hoursTime + updateResMin + updateResSecond;
+        }
+        else
+        {
+            resSecond = secondTime + formolTime;
+            var second =   resSecond % 60;
+            var minutes =  resSecond / 60;
+
+            var validMinutes = (minutesTime + minutes) < 60;
+
+            if(validMinutes)
+            {
+                var updateResMin = ConvertNumberTwoLength((minutesTime + minutes));
+                var updateRessecond = ConvertNumberTwoLength(second);
+
+                ResultEnd = hoursTime + updateResMin + updateRessecond;
+            }
+            else
+            {
+               var minites =  (minutesTime + minutes) % 60;
+               var hours =  (minutesTime + minutes) / 60;
+                var updateResminites = ConvertNumberTwoLength(minites);
+                var updateRessecond = ConvertNumberTwoLength(second);
+
+                ResultEnd = (hoursTime+ hours) + updateResminites + updateRessecond;
+            }
+        }
+
+        return int.Parse(ResultEnd);
+    }
+
+    private string ConvertNumberTwoLength(int number )
+    {
+        var res = number.ToString().Length < 2 ? "0" + number : number.ToString();
+
+        return res;
+    }
     #endregion
 }
