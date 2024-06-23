@@ -72,31 +72,6 @@ public class FormolService : IFormolService
                     continue;
                 }
 
-                //============تنظیم ردیف های پایه=====================//
-
-                SetBaseTradeHistories(formol, TradeHistoriesList);
-
-                //=========== تنظیم مقادیر اصلی ردیف پایه=============//
-
-                var result = SetBaseTradeHistoriesViewModel(formol);
-
-                if (!result)
-                {
-                    return new ResultCalculateFormol()
-                    {
-                        ErrorMessage = "firstTradeHistories is null"
-                    };
-                }
-
-                //=========== محاسبه خود ردیف پایه با فرمول===========//
-
-                var resultBaseTradeWithFormol = SetBaseTradeHistoriesViewModelWithFormol(formol, TradeHistoriesList);
-
-                if (resultBaseTradeWithFormol)
-                {
-                    continue;
-                }
-
                 //========== محاسبه ردیف های پایه با دیگر ردیف ها=====//
 
                 var resultCalculateTradeHistories = GetCalculateTradeHistories(formol, TradeHistoriesList);
@@ -175,42 +150,6 @@ public class FormolService : IFormolService
     }
 
     /// <summary>
-    /// تنظیم ردیف های پایه
-    /// </summary>
-    /// <param name="TradeHistoriesList"></param>
-    private void SetBaseTradeHistories(FormolSendAction formol, List<TradeHistory> TradeHistoriesList)
-    {
-        List<TradeHistory> addBaseTradeHistories = [];
-
-        if (CurrentMultiStage > 1)
-        {
-            var firstBase = TradeHistoriesList.OrderBy(x => x.nTran)
-                                              .FirstOrDefault();
-
-            if (firstBase is null)
-            {
-                return;
-            }
-
-            //اگر  قیمت ردیف پایه با قیمت معاملاتی که با این قیمت برابر باشد به ترتیب جمع کن
-            addBaseTradeHistories = TradeHistoriesList.Where(x => !formol.CalculationPrice || x.pTran == (firstBase.pTran))
-                                                      .Skip(0)
-                                                      .Take(CurrentMultiStage)
-                                                      .ToList();
-        }
-        else
-        {
-            addBaseTradeHistories = TradeHistoriesList
-                                    .Skip(0)
-                                    .Take(CurrentMultiStage)
-                                    .ToList();
-        }
-
-        BaseTradeHistories.AddRange(addBaseTradeHistories);
-
-    }
-
-    /// <summary>
     ///  تنظیم مقادیر اصلی ردیف پایه اصلی
     /// </summary>
     /// <param name="formol"></param>
@@ -229,7 +168,7 @@ public class FormolService : IFormolService
             BaseTradeHistoriesViewModel.BasePrice = firstTradeHistories.pTran;
             BaseTradeHistoriesViewModel.BaseHajm = firstTradeHistories.qTitTran;
             BaseTradeHistoriesViewModel.BaseTime = firstTradeHistories.hEven;
-            BaseTradeHistoriesViewModel.BaseEndTime = ConvertTime( firstTradeHistories.hEven , formol.TimeFormol);
+            BaseTradeHistoriesViewModel.BaseEndTime = ConvertTime(firstTradeHistories.hEven, formol.TimeFormol);
         }
         else if (CurrentMultiStage > 1)
         {
@@ -242,7 +181,7 @@ public class FormolService : IFormolService
 
             BaseTradeHistoriesViewModel.BasePrice = firstTradeHistories.pTran;
             BaseTradeHistoriesViewModel.BaseTime = firstTradeHistories.hEven;
-            BaseTradeHistoriesViewModel.BaseEndTime = ConvertTime ( firstTradeHistories.hEven , formol.TimeFormol);
+            BaseTradeHistoriesViewModel.BaseEndTime = ConvertTime(firstTradeHistories.hEven, formol.TimeFormol);
             BaseTradeHistoriesViewModel.BaseHajm = BaseTradeHistories.Sum(b => b.qTitTran);
         }
 
@@ -279,41 +218,19 @@ public class FormolService : IFormolService
     /// <param name="TradeHistoriesList"></param>
     /// <returns></returns>
     private bool GetCalculateTradeHistories(FormolSendAction formol, List<TradeHistory> TradeHistoriesList)
-    {      
-
-        var lastBaseTrade = BaseTradeHistories.OrderByDescending(x => x.nTran).FirstOrDefault();
+    {
+        var firstTrade = TradeHistoriesList.OrderBy(x => x.nTran).FirstOrDefault();
+        BaseTradeHistories.Add(firstTrade);
+        SetBaseTradeHistoriesViewModel(formol);
 
         //ردیف هایی که باید محاسبه شوند طبق شرایط زمان ومراحل
         var calculateTradeHistories = TradeHistoriesList
-                                          //.Where(x=> !(lastBaseTrade!=null) || x.nTran >= lastBaseTrade.nTran)
-                                          .Skip(CurrentMultiStage)
+                                          .Skip(1)
                                           .Where(x => x.hEven <= BaseTradeHistoriesViewModel.BaseEndTime)
                                           .ToList();
 
-        // اگر تعدا ردیف های پایه بزرگتر از تعداد  معاملاتی که قرار است محاسبه شوند
-        //اگر ردیف های پایه مخالف صفر باشند و تعداد معاملات محاسباتی هم صفر باشد 
-        //اگر تعداد معاملات محاسبه شده برابر ردیف های پایه باشد 
-        //var validation = calculateTradeHistories.Count < BaseTradeHistories.Count ||
-        //                 calculateTradeHistories.Count == (0) && BaseTradeHistories.Count != 0 ||
-        //                 calculateTradeHistories.Count == BaseTradeHistories.Count;
-        //تعداد معاملات برابر صفر شود
-        //calculateTradeHistories.Count == 0
-     
-        if (calculateTradeHistories.Count == 0 )
+        if (calculateTradeHistories.Count == 0)
         {
-            //if (calculateTradeHistories.Count == BaseTradeHistories.Count)
-            //{
-            //    //در صورتی که آخرین ردیف باشد و پایه با کل معاملات تعداشون برابر باشد
-            //    var firstcalculateTradeHistories = calculateTradeHistories.FirstOrDefault();
-
-            //    if (firstcalculateTradeHistories != null)
-            //    {
-            //        TradeHistoriesList.Remove(firstcalculateTradeHistories);
-            //        MainRealBaseTradeHistories.Add(firstcalculateTradeHistories);
-            //        CurrentMultiStage = 1;
-            //    }
-            //}
-
             //اولین ردیف از پایه هارا حذف کن
             var first = BaseTradeHistories.FirstOrDefault();
 
@@ -329,52 +246,74 @@ public class FormolService : IFormolService
 
         bool isFinshFor = false;
 
-        foreach (var item in calculateTradeHistories)
+        int countCalculateTradeHistories = calculateTradeHistories.Count;
+
+        int counter =1;
+
+        do
         {
-            if (!isFinshFor)
+            if (counter > 1 && BaseTradeHistories.Count > 1)
             {
-                var sum = BaseTradeHistoriesViewModel.BaseHajm + item.qTitTran;
-
-                //محاسبه بر اساس قیمت
-                if (formol.CalculationPrice)
-                {
-                    //.اگر قیمت ردیف پایه با قیمت ردیف های دیگر برابر بود مقایسه انجام شود
-                    if (item.pTran == (BaseTradeHistoriesViewModel.BasePrice))
-                    {
-                        getCalculate();
-                    }
-                }
-                //محاسبه بر اساس بدون قیمت
-                else
-                {
-                    getCalculate();
-                }
-
-                void getCalculate()
-                {
-                    var validation = formol.HajmFormol == (sum);
-
-                    if (validation)
-                    {
-                        BaseTradeHistories.ForEach(b =>
-                        {
-                            TradeHistoriesList.Remove(b);
-                            DeletedTradeHistories.Add(b);
-                        });
-
-                        TradeHistoriesList.Remove(item);
-                        DeletedTradeHistories.Add(item);
-                        CurrentMultiStage = 1;
-                        isFinshFor = true;
-                    }
-                }
+                var lastRecord = BaseTradeHistories.Skip(1).Take(1).FirstOrDefault();
+                calculateTradeHistories.Remove(lastRecord);
+                BaseTradeHistories.Remove(lastRecord);
+                BaseTradeHistories.ForEach(item => calculateTradeHistories.Remove(item));
             }
-        }
 
-        if (isFinshFor)
-        {
-            return true;
-        }
+            if (!calculateTradeHistories.Any())
+            {
+                return false;
+            }
+
+            foreach (var item in calculateTradeHistories)
+            {
+                if (!isFinshFor)
+                {
+                    if (BaseTradeHistories.Count < CurrentMultiStage)
+                    {
+                        BaseTradeHistories.Add(item);
+                        SetBaseTradeHistoriesViewModel(formol);
+                        var result = SetBaseTradeHistoriesViewModelWithFormol(formol, TradeHistoriesList);
+                        if (result)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        var sum = BaseTradeHistoriesViewModel.BaseHajm + item.qTitTran;
+
+                        var validation = formol.HajmFormol == sum;
+
+                        if (validation)
+                        {
+                            BaseTradeHistories.ForEach(b =>
+                            {
+                                TradeHistoriesList.Remove(b);
+                                DeletedTradeHistories.Add(b);
+                            });
+
+                            TradeHistoriesList.Remove(item);
+                            DeletedTradeHistories.Add(item);
+                            CurrentMultiStage = 1;
+                            isFinshFor = true;
+                        }
+                    }
+
+                }
+
+            }
+
+            counter += 1;
+
+            if (isFinshFor)
+            {
+                return true;
+            }
+
+        } while (counter <= countCalculateTradeHistories && CurrentMultiStage > 1);
+
+    
 
         return false;
     }
@@ -388,7 +327,7 @@ public class FormolService : IFormolService
     private bool ComparisonCurrentMultiStageWithMultiStage(FormolSendAction formol, List<TradeHistory> TradeHistoriesList)
     {
         //مرحله جاری را افزایش بده
-        CurrentMultiStage = CurrentMultiStage + 1 ;
+        CurrentMultiStage = CurrentMultiStage + 1;
 
         var multiStage = formol.MultiStage;
 
@@ -409,21 +348,21 @@ public class FormolService : IFormolService
         return false;
     }
 
-    private int ConvertTime(int time,int formolTime)
+    private int ConvertTime(int time, int formolTime)
     {
         //90021
         var _string = time.ToString();
         var _secondTime = _string.Substring(_string.Length - 2);
-        var _minutesTime = _string.Substring(_string.Length - 4).Substring(0,2);
+        var _minutesTime = _string.Substring(_string.Length - 4).Substring(0, 2);
         string _hoursTime = string.Empty;
 
-        if (_string.Length==5)
+        if (_string.Length == 5)
         {
-            _hoursTime = _string.Substring(_string.Length - 5).Substring(0,1);
+            _hoursTime = _string.Substring(_string.Length - 5).Substring(0, 1);
         }
         else
         {
-            _hoursTime = _string.Substring(_string.Length - 6).Substring(0,2);
+            _hoursTime = _string.Substring(_string.Length - 6).Substring(0, 2);
         }
 
         int secondTime = int.Parse(_secondTime);
@@ -433,10 +372,10 @@ public class FormolService : IFormolService
         int resSecond = 0;
         string ResultEnd = string.Empty;
 
-       
+
         var validSecond = (secondTime + formolTime) < 60;
 
-        if(validSecond)
+        if (validSecond)
         {
             resSecond = secondTime + formolTime;
             var updateResSecond = ConvertNumberTwoLength(resSecond);
@@ -447,12 +386,12 @@ public class FormolService : IFormolService
         else
         {
             resSecond = secondTime + formolTime;
-            var second =   resSecond % 60;
-            var minutes =  resSecond / 60;
+            var second = resSecond % 60;
+            var minutes = resSecond / 60;
 
             var validMinutes = (minutesTime + minutes) < 60;
 
-            if(validMinutes)
+            if (validMinutes)
             {
                 var updateResMin = ConvertNumberTwoLength((minutesTime + minutes));
                 var updateRessecond = ConvertNumberTwoLength(second);
@@ -461,19 +400,19 @@ public class FormolService : IFormolService
             }
             else
             {
-               var minites =  (minutesTime + minutes) % 60;
-               var hours =  (minutesTime + minutes) / 60;
+                var minites = (minutesTime + minutes) % 60;
+                var hours = (minutesTime + minutes) / 60;
                 var updateResminites = ConvertNumberTwoLength(minites);
                 var updateRessecond = ConvertNumberTwoLength(second);
 
-                ResultEnd = (hoursTime+ hours) + updateResminites + updateRessecond;
+                ResultEnd = (hoursTime + hours) + updateResminites + updateRessecond;
             }
         }
 
         return int.Parse(ResultEnd);
     }
 
-    private string ConvertNumberTwoLength(int number )
+    private string ConvertNumberTwoLength(int number)
     {
         var res = number.ToString().Length < 2 ? "0" + number : number.ToString();
 
