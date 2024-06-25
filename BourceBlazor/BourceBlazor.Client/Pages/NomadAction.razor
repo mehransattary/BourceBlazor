@@ -97,7 +97,7 @@
                     <div class="row mt-2">
 
                         <!--حجم های فیلتری-->
-                        <div class="col-5">
+                        <div class="col-4">
                             <InputTags Value="HajmsTags" Options="InputTagOptions" OnTagRemoved="DeleteHajm" OnTagAdded="SaveHajm" />
                         </div>                  
 
@@ -125,6 +125,11 @@
                         <!--اعمال-->
                         <div class="col-1" style="text-align:start">
                             <Button Outline="true" Color="ButtonColor.Success" @onclick="DoFilterOnGrid"> <Icon Name="IconName.Search" />  </Button>
+                        </div>
+
+                          <!--ریلود-->
+                        <div class="col-1" style="text-align:start">
+                            <Button Outline="true" Color="ButtonColor.Success" @onclick="ReloadGrid"> <Icon Name="IconName.ArrowCounterclockwise" />  </Button>
                         </div>
 
                     </div>

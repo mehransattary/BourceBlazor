@@ -276,6 +276,17 @@ public partial class NomadAction
 
     }
 
+    private async Task ReloadGrid()
+    {
+        await EnableLoadGrid();
+        await GetDataGrid();
+        FilterTradeHistoriesByHajms();
+        SetSumHajmAndCount();
+        await DisableLoadGrid();
+        await grid.RefreshDataAsync();
+        StateHasChanged();
+    }
+
     private async Task DoFilterOnGrid()
     {
         await EnableLoadGrid();
