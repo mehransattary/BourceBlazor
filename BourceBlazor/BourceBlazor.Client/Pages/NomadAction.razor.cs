@@ -84,7 +84,8 @@ public partial class NomadAction
     private async Task<IEnumerable<TradeHistory>> GetDataGrid()
     { 
         try
-        {
+        {         
+
             var response = await httpClient
                 .GetFromJsonAsync<List<TradeHistory>>("/api/TradeHistory/" + InsCode + "/" + NomadDate +"/"+  Skip + "/" + Take  );
 
@@ -279,8 +280,17 @@ public partial class NomadAction
     {
         await EnableLoadGrid();
 
-        await GetDataGrid();
+        if(!TradeHistories.Any())
+        {
+            await GetDataGrid();
+        }
 
+        else if ( TradeHistories.Any() && Skip != 0 && Take != 0)
+        {
+            TradeHistories = TradeHistories.Skip(Skip - 1).Take(Take).ToList();
+            await GetTradeHistoriesAndSumHajmCount();
+        }
+        
         FilterTradeHistoriesByHajms();
 
         SetSumHajmAndCount();

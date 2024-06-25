@@ -33,8 +33,10 @@ public class HttpService : IHttpService
 
             var result = response.tradeHistory.Where(x => x.canceled == 0)
                                            .DistinctBy(x => new { x.nTran, x.qTitTran, x.hEven })
-                                           .Select(item => new TradeHistory
+                                           .OrderBy(_ => _.nTran)
+                                           .Select((item, index) => new TradeHistory
                                            {
+                                               Counter = index + 1,
                                                //ردیف
                                                nTran = item.nTran,
                                                //زمان
@@ -46,7 +48,7 @@ public class HttpService : IHttpService
                                                //لغو شده
                                                canceled = item.canceled
 
-                                           }).OrderBy(_ => _.nTran).ToList();
+                                           }).ToList();
 
             if (skip!=0 && take!=0)
             {

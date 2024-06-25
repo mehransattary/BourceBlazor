@@ -189,6 +189,9 @@
       ItemsPerPageText="تعداد نمایش"
       EmptyText="اطلاعاتی وجود ندارد">
 
+    <GridColumn TItem="TradeHistory" HeaderText="#" PropertyName="Counter" SortKeySelector="item => item.Counter">
+        @context.Counter
+    </GridColumn>
 
     <GridColumn TItem="TradeHistory" HeaderText="ردیف" PropertyName="nTran" SortKeySelector="item => item.nTran">
         @context.nTran

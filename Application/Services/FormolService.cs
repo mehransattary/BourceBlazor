@@ -222,6 +222,11 @@ public class FormolService : IFormolService
         var firstTrade = TradeHistoriesList.OrderBy(x => x.nTran).FirstOrDefault();
         BaseTradeHistories.Add(firstTrade);
         SetBaseTradeHistoriesViewModel(formol);
+        var resultFirst = SetBaseTradeHistoriesViewModelWithFormol(formol, TradeHistoriesList);
+        if (resultFirst)
+        {
+            return true;
+        }
 
         //ردیف هایی که باید محاسبه شوند طبق شرایط زمان ومراحل
         var calculateTradeHistories = TradeHistoriesList
