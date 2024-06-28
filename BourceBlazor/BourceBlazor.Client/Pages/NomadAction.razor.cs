@@ -49,6 +49,9 @@ public partial class NomadAction
     public int Skip { get; set; } = 0;
     public int Take { get; set; } = 0;
 
+    public bool Reload { get; set; } 
+
+
     #endregion
 
     #region Methods   
@@ -87,7 +90,7 @@ public partial class NomadAction
         {         
 
             var response = await httpClient
-                .GetFromJsonAsync<List<TradeHistory>>("/api/TradeHistory/" + InsCode + "/" + NomadDate +"/"+  Skip + "/" + Take  );
+                .GetFromJsonAsync<List<TradeHistory>>($"/api/TradeHistory/{InsCode}/{NomadDate}/{Skip}/{Take}/{Reload}");
 
             if (response != null && response.Any())
             {
@@ -134,6 +137,7 @@ public partial class NomadAction
 
     private async Task GetFilterByFormol(bool isDataRemoved)
     {
+        Reload = false;
         await EnableLoadGrid();
 
         var formolSendActions = new List<FormolSendAction>();
@@ -154,7 +158,7 @@ public partial class NomadAction
             formolSendActions.Add(model);
         });       
 
-        var response = await httpClient.PostAsJsonAsync($"/GetCalculateFormols/{Skip}/{Take}", formolSendActions);
+        var response = await httpClient.PostAsJsonAsync($"/GetCalculateFormols/{Skip}/{Take}/{Reload}", formolSendActions);
 
         if (response.IsSuccessStatusCode)
         {
@@ -214,10 +218,11 @@ public partial class NomadAction
     public bool IsCleanNomad { get; set; }
     private async Task GetEventCallbackOnChangeDate(ClosingPriceDaily closingPriceDaily)
     {
+        Reload = false;
+
         if (closingPriceDaily == null)
         {
             await DisableLoadGrid();
-
             SetEmptySumHajmAndCount();
             SetEmptBaseFormol();
             TradeHistories = new List<TradeHistory>();
@@ -278,6 +283,7 @@ public partial class NomadAction
 
     private async Task ReloadGrid()
     {
+        Reload = true;
         await EnableLoadGrid();
         await GetDataGrid();
         FilterTradeHistoriesByHajms();
@@ -289,19 +295,14 @@ public partial class NomadAction
 
     private async Task DoFilterOnGrid()
     {
+        Reload = false;
+
         await EnableLoadGrid();
 
-        if(!TradeHistories.Any())
-        {
-            await GetDataGrid();
-        }
+        await GetDataGrid();
 
-        else if ( TradeHistories.Any() && Skip != 0 && Take != 0)
-        {
-            TradeHistories = TradeHistories.Skip(Skip - 1).Take(Take).ToList();
-            await GetTradeHistoriesAndSumHajmCount();
-        }
-        
+        await GetTradeHistoriesAndSumHajmCount();
+
         FilterTradeHistoriesByHajms();
 
         SetSumHajmAndCount();

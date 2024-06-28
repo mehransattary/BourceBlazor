@@ -1,6 +1,8 @@
 ﻿using Application.ViewModel;
 using Application.ViewModel.Nomad.Actions;
+using System.Collections.Generic;
 using System.Diagnostics.Metrics;
+using System.Linq.Expressions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Application.Services;
@@ -196,7 +198,7 @@ public class FormolService : IFormolService
     /// <returns></returns>
     private bool SetBaseTradeHistoriesViewModelWithFormol(FormolSendAction formol, List<TradeHistory> TradeHistoriesList)
     {
-        if (BaseTradeHistoriesViewModel.BaseHajm == (formol.HajmFormol))
+        if (BaseTradeHistoriesViewModel.BaseHajm == formol.HajmFormol)
         {
             BaseTradeHistories.ForEach(item =>
             {
@@ -207,6 +209,19 @@ public class FormolService : IFormolService
             CurrentMultiStage = 1;
             return true;
         }
+        //زمانی که حجم ردیف پایه بیشتر از  حجم فرمول ئباشد ادامه دادن باید قطع شود
+
+        //else if (BaseTradeHistoriesViewModel.BaseHajm > formol.HajmFormol)
+        //{
+        //    BaseTradeHistories.ForEach(item =>
+        //    {
+        //        TradeHistoriesList.Remove(item);
+        //        MainRealBaseTradeHistories.Add(item);
+        //    });
+
+        //    CurrentMultiStage = 1;
+        //    return true;
+        //}
 
         return false;
     }
@@ -220,18 +235,23 @@ public class FormolService : IFormolService
     private bool GetCalculateTradeHistories(FormolSendAction formol, List<TradeHistory> TradeHistoriesList)
     {
         var firstTrade = TradeHistoriesList.OrderBy(x => x.nTran).FirstOrDefault();
+
         BaseTradeHistories.Add(firstTrade);
+
         SetBaseTradeHistoriesViewModel(formol);
+
         var resultFirst = SetBaseTradeHistoriesViewModelWithFormol(formol, TradeHistoriesList);
+
         if (resultFirst)
         {
             return true;
         }
-
+      
         //ردیف هایی که باید محاسبه شوند طبق شرایط زمان ومراحل
         var calculateTradeHistories = TradeHistoriesList
                                           .Skip(1)
-                                          .Where(x => x.hEven <= BaseTradeHistoriesViewModel.BaseEndTime)
+                                          .Where(t => t.hEven <= BaseTradeHistoriesViewModel.BaseEndTime &&
+                                                    (!formol.CalculationPrice || t.pTran.Equals(BaseTradeHistoriesViewModel.BasePrice)))
                                           .ToList();
 
         if (calculateTradeHistories.Count == 0)

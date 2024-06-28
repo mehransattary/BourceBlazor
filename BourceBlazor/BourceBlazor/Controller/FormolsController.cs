@@ -115,14 +115,14 @@ namespace BourceBlazor.Controller
             return NoContent();
         }
 
-        [HttpPost("/GetCalculateFormols/{skip}/{take}")]
-        public async Task<IActionResult> GetCalculateFormols([FromBody] List<FormolSendAction> formols,int skip , int take)
+        [HttpPost("/GetCalculateFormols/{skip}/{take}/{reload}")]
+        public async Task<IActionResult> GetCalculateFormols([FromBody] List<FormolSendAction> formols,int skip , int take, bool reload)
         {
             try
             {
                 var firstFormol = formols.FirstOrDefault();
 
-                var tradeHistories = await httpService.GetTradeHistoriesByApi(firstFormol.InsCode, firstFormol.NomadDate, skip, take);
+                var tradeHistories = await httpService.GetTradeHistoriesByApi(firstFormol.InsCode, firstFormol.NomadDate, skip, take, reload);
 
                 var result = await formolService.GetFilterByFormolAll(formols, tradeHistories);
 
