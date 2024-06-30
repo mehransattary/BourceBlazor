@@ -59,7 +59,7 @@
 
     </div>
 
-    <div class="row mt-2" style="position: fixed;bottom: 24px; z-index:111;    right: 50%;">
+    <div class="row mt-2" style="position: fixed;bottom: 24px; z-index:111;    right: 0%;">
 
         <div class="col-md-4 col-6 text-end">
 
@@ -190,32 +190,40 @@
       PageSize="100"
       PageSizeSelectorVisible
       PaginationItemsTextFormat="{0} - {1} از {2} ردیف"
-      PageSizeSelectorItems="[100,200,300]"
+      PageSizeSelectorItems="[5,10,15,100,200,300]"
       ItemsPerPageText="تعداد نمایش"
-      EmptyText="اطلاعاتی وجود ندارد">
+      EmptyText="اطلاعاتی وجود ندارد"
+      HeaderRowCssClass="bg-primary text-white border-bottom-0"
+      FiltersRowCssClass="bg-primary text-white bg-opacity-25 border-bottom-0">   
 
-    <GridColumn TItem="TradeHistory" HeaderText="#" PropertyName="Counter" SortKeySelector="item => item.Counter">
+    <GridColumn ColumnClass="@(x =>x.GroupDeleteColorName)" TItem="TradeHistory" HeaderText="#" PropertyName="Counter" SortKeySelector="item => item.Counter">
         @context.Counter
+
     </GridColumn>
 
-    <GridColumn TItem="TradeHistory" HeaderText="ردیف" PropertyName="nTran" SortKeySelector="item => item.nTran">
+    <GridColumn ColumnClass="@(x =>x.GroupDeleteColorName)" TItem="TradeHistory" HeaderText="ردیف" PropertyName="nTran" SortKeySelector="item => item.nTran">
         @context.nTran
+
     </GridColumn>
 
-    <GridColumn TItem="TradeHistory" HeaderText=" زمان" PropertyName="hEven" SortKeySelector="item => item.hEven">
+    <GridColumn ColumnClass="@(x =>x.GroupDeleteColorName)" TItem="TradeHistory" HeaderText=" زمان" PropertyName="hEven" SortKeySelector="item => item.hEven">
         @context.hEven.ToTime()
+
     </GridColumn>
 
-    <GridColumn TItem="TradeHistory" HeaderText="حجم" PropertyName="qTitTran" SortKeySelector="item => item.qTitTran">
+    <GridColumn ColumnClass="@(x =>x.GroupDeleteColorName)" TItem="TradeHistory" HeaderText="حجم" PropertyName="qTitTran" SortKeySelector="item => item.qTitTran">
         @context.qTitTran.ToString("#,0")
+
     </GridColumn>
 
-    <GridColumn TItem="TradeHistory" HeaderText="قیمت" PropertyName="pTran" SortKeySelector="item => item.pTran">
+    <GridColumn ColumnClass="@(x =>x.GroupDeleteColorName)" TItem="TradeHistory" HeaderText="قیمت" PropertyName="pTran" SortKeySelector="item => item.pTran">
         @context.pTran.ToString("#,0")
+
     </GridColumn>
 
-    <GridColumn TItem="TradeHistory" HeaderText=" وضعیت" PropertyName="canceled" SortKeySelector="item => item.canceled">
+    <GridColumn ColumnClass="@(x =>x.GroupDeleteColorName)" TItem="TradeHistory" HeaderText=" وضعیت" PropertyName="canceled" SortKeySelector="item => item.canceled">
         @(context.canceled == 0 ? "فعال" : "غیر فعال ")
+
     </GridColumn>
 
 </Grid>

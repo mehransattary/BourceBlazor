@@ -1,4 +1,6 @@
-﻿namespace Application.ViewModel.Nomad.Actions
+﻿using System.Drawing;
+
+namespace Application.ViewModel.Nomad.Actions
 {
 
     public class Root
@@ -8,6 +10,7 @@
 
     public class TradeHistory
     {
+        public string GroupDeleteColorName { get; set; }
         public int Counter { get; set; }
         public object insCode { get; set; }
         public int dEven { get; set; }

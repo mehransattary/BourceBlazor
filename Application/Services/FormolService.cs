@@ -2,6 +2,7 @@
 using Application.ViewModel.Nomad.Actions;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
+using System.Drawing;
 using System.Linq.Expressions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -200,6 +201,7 @@ public class FormolService : IFormolService
     {
         if (BaseTradeHistoriesViewModel.BaseHajm == formol.HajmFormol)
         {
+
             BaseTradeHistories.ForEach(item =>
             {
                 TradeHistoriesList.Remove(item);
@@ -312,14 +314,24 @@ public class FormolService : IFormolService
 
                         if (validation)
                         {
+
+                            List<TradeHistory> _deleted = new();
+
                             BaseTradeHistories.ForEach(b =>
                             {
                                 TradeHistoriesList.Remove(b);
-                                DeletedTradeHistories.Add(b);
+                                _deleted.Add(b);
                             });
 
                             TradeHistoriesList.Remove(item);
-                            DeletedTradeHistories.Add(item);
+                            _deleted.Add(item);
+
+                            string randomColor = GenerateBgColor();
+
+                            _deleted.ForEach(x => x.GroupDeleteColorName = randomColor);
+
+                            DeletedTradeHistories.AddRange(_deleted);
+
                             CurrentMultiStage = 1;
                             isFinshFor = true;
                         }
@@ -341,6 +353,26 @@ public class FormolService : IFormolService
     
 
         return false;
+    }
+
+    private  string GenerateBgColor()
+    {
+        List<string> colors = new List<string>
+                            {
+                                "bg bg-primary text-white",
+                                "bg bg-secondary text-white",
+                                "bg bg-success text-white",
+                                "bg bg-danger text-white",
+                                "bg bg-warning text-white",
+                                "bg bg-info",
+                                "bg bg-light",
+                                "bg bg-dark text-white"
+                            };
+
+        Random rnd = new Random();
+        int index = rnd.Next(colors.Count);
+        string randomColor = colors[index];
+        return randomColor;
     }
 
     /// <summary>

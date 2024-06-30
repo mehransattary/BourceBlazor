@@ -107,6 +107,10 @@ public partial class NomadAction
         }
     }
 
+    private string GetRowClass(TradeHistory item)
+    {      
+       return "table-success";       
+    }
     private async Task GetTradeHistoriesAndSumHajmCount()
     {
         await GetFillHajms();
